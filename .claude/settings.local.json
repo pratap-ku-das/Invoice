@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(grep -E \"^\\(nest|tsc\\)$\")",
+      "Bash(npx tsc *)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(echo \"TSC_EXIT: $?\")",
+      "Bash(npm run *)",
+      "Bash(npm test *)",
+      "Bash(npx jest *)",
+      "Bash(docker --version)",
+      "Bash(node scripts/dev-db.js)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/api/docs)",
+      "Bash(break)",
+      "Bash(curl *)",
+      "Bash(python -c \"import sys,json;print\\(json.load\\(sys.stdin\\)['accessToken'\\)\")",
+      "Bash(python -c ' *)",
+      "Bash(node -e ' *)",
+      "Bash(touch src/main.ts)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //F //PID 3580)",
+      "Read(//tmp/server/**)",
+      "Read(//tmp/**)"
+    ]
+  }
+}
