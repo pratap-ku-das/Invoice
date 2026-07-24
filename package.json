@@ -12,11 +12,13 @@
     "dev:server": "npm run dev -w server",
     "dev:client": "npm run dev -w client",
     "build": "npm run build -w server && npm run build -w client",
+    "deploy": "npm run build -w client && gh-pages -d client/dist",
     "test": "npm run test -w server && npm run test -w client",
     "lint": "npm run lint -w server && npm run lint -w client"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "gh-pages": "^6.3.0"
   },
   "engines": {
     "node": ">=20"
