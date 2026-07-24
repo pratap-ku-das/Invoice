@@ -16,7 +16,10 @@ async function bootstrap() {
 
   app.useLogger(app.get(Logger));
   app.setGlobalPrefix('api');
-  app.enableCors({ origin: env.CLIENT_ORIGIN, credentials: true });
+  app.enableCors({
+    origin: [env.CLIENT_ORIGIN, 'https://dev.pratap.website', 'http://localhost:5173'],
+    credentials: true,
+  });
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: false }),
   );
@@ -31,6 +34,8 @@ async function bootstrap() {
     .build();
   SwaggerModule.setup('api/docs', app, SwaggerModule.createDocument(app, swaggerConfig));
 
-  await app.listen(env.PORT);
+  const port = process.env.PORT || env.PORT;
+  await app.listen(port, '0.0.0.0');
+  console.log(`Server listening on port ${port}`);
 }
 bootstrap();
