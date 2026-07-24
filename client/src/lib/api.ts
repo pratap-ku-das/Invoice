@@ -64,7 +64,11 @@ api.interceptors.response.use(
         original.headers.Authorization = `Bearer ${token}`;
         return api(original);
       }
-      if (!location.pathname.startsWith('/login')) location.href = '/login';
+      tokenStore.clear();
+      const isProtectedRoute = location.pathname.startsWith('/app') || location.pathname.startsWith('/admin');
+      if (isProtectedRoute && !location.pathname.startsWith('/login')) {
+        location.href = '/login';
+      }
     }
     return Promise.reject(error);
   },
