@@ -189,10 +189,6 @@ export const router = createBrowserRouter([
     element: <AppLayout />,
     children: appChildren,
   },
-  {
-    element: <AppLayout />,
-    children: appChildren,
-  },
 
   { path: '*', element: <Navigate to="/" replace /> },
 ]);
