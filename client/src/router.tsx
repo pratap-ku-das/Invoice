@@ -2,7 +2,6 @@ import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PlatformAdminLayout } from '@/components/layout/PlatformAdminLayout';
-import { useAuth } from '@/store/auth';
 
 const LandingPage = lazy(() => import('@/pages/landing/LandingPage'));
 const CompaniesManagement = lazy(() => import('@/pages/admin/CompaniesManagement'));
