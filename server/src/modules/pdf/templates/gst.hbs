@@ -1,0 +1,46 @@
+<div class="doc" style="padding:24px;">
+  <div style="text-align:center; border:2px solid #111; padding:8px;">
+    <div style="font-size:12px; font-weight:700;">TAX INVOICE</div>
+    <div style="font-size:18px; font-weight:800;">{{company.name}}</div>
+    <div class="muted">{{company.address.line1}}, {{company.address.city}} {{company.address.state}} {{company.address.pincode}}</div>
+    <div class="muted">GSTIN: {{company.gstin}} {{#if company.phone}}| Ph: {{company.phone}}{{/if}}</div>
+  </div>
+  <table style="border:2px solid #111; border-top:none; width:100%;">
+    <tr>
+      <td style="border-right:1px solid #111; padding:6px; width:50%;">
+        <div class="section-title">Bill To</div>
+        <strong>{{doc.partyName}}</strong>
+        <div class="muted">{{doc.billingAddress.line1}} {{doc.billingAddress.city}} {{doc.billingAddress.state}}</div>
+        <div class="muted">GSTIN: {{doc.partyGstin}}</div>
+      </td>
+      <td style="padding:6px;">
+        <div>Invoice No: <strong>{{doc.number}}</strong></div>
+        <div>Date: {{date doc.date}}</div>
+        {{#if doc.dueDate}}<div>Due: {{date doc.dueDate}}</div>{{/if}}
+        <div>Place of Supply: {{doc.billingAddress.state}}</div>
+      </td>
+    </tr>
+  </table>
+  <table class="items" style="border:2px solid #111; border-top:none;">
+    <thead><tr style="border-bottom:1px solid #111; background:#f3f4f6;">
+      <th>#</th><th>Description</th><th>HSN</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Taxable</th><th class="num">CGST</th><th class="num">SGST</th><th class="num">IGST</th><th class="num">Total</th>
+    </tr></thead>
+    <tbody>{{#each doc.items}}<tr style="border-bottom:1px solid #d1d5db;">
+      <td>{{inc @index}}</td><td>{{this.name}}</td><td>{{this.hsn}}</td><td class="num">{{this.qty}}</td>
+      <td class="num">{{money this.price}}</td><td class="num">{{money this.taxable}}</td>
+      <td class="num">{{money this.cgst}}</td><td class="num">{{money this.sgst}}</td><td class="num">{{money this.igst}}</td><td class="num">{{money this.amount}}</td>
+    </tr>{{/each}}</tbody>
+  </table>
+  <div class="flex" style="border:2px solid #111; border-top:none; padding:8px;">
+    <div style="flex:1;"><div class="section-title">Amount in words</div><em>{{words doc.grandTotal}}</em></div>
+    <div style="width:240px;"><table class="totals">
+      <tr><td>Taxable</td><td class="right">{{money doc.subtotal}}</td></tr>
+      <tr><td>CGST</td><td class="right">{{money doc.cgst}}</td></tr>
+      <tr><td>SGST</td><td class="right">{{money doc.sgst}}</td></tr>
+      {{#if doc.igst}}<tr><td>IGST</td><td class="right">{{money doc.igst}}</td></tr>{{/if}}
+      {{#if doc.roundOff}}<tr><td>Round Off</td><td class="right">{{money doc.roundOff}}</td></tr>{{/if}}
+      <tr class="grand"><td>Grand Total</td><td class="right">{{money doc.grandTotal company.currencySymbol}}</td></tr>
+    </table></div>
+  </div>
+  <div class="signature" style="padding:0 8px;"><div style="border-top:1px solid #111; display:inline-block; padding-top:4px;">Authorized Signatory for {{company.name}}</div></div>
+</div>

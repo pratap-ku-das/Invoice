@@ -1,0 +1,26 @@
+<div class="doc" style="padding:44px; font-weight:300;">
+  <div class="flex" style="align-items:baseline;">
+    <div style="font-size:16px; font-weight:600; letter-spacing:.02em;">{{company.name}}</div>
+    <div class="right"><div style="font-size:32px; font-weight:200;">{{title}}</div></div>
+  </div>
+  <div class="flex muted" style="margin-top:8px; font-size:11px;">
+    <div>{{company.gstin}}</div>
+    <div class="right">#{{doc.number}} &middot; {{date doc.date}}</div>
+  </div>
+  <div style="height:1px; background:#e5e7eb; margin:24px 0;"></div>
+  <div class="muted" style="font-size:11px;">Billed to</div>
+  <div style="font-size:14px; margin-bottom:24px;">{{doc.partyName}}</div>
+  <table class="items">
+    <thead><tr style="border-bottom:1px solid #111;"><th>Item</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Amount</th></tr></thead>
+    <tbody>{{#each doc.items}}<tr style="border-bottom:1px solid #f3f4f6;"><td>{{this.name}}</td><td class="num">{{this.qty}}</td><td class="num">{{money this.price}}</td><td class="num">{{money this.amount}}</td></tr>{{/each}}</tbody>
+  </table>
+  <div class="flex" style="margin-top:24px;">
+    <div style="flex:1;"></div>
+    <div style="width:220px;"><table class="totals">
+      <tr><td class="muted">Subtotal</td><td class="right">{{money doc.subtotal}}</td></tr>
+      {{#if doc.taxTotal}}<tr><td class="muted">Tax</td><td class="right">{{money doc.taxTotal}}</td></tr>{{/if}}
+      <tr class="grand" style="border-top:1px solid #111;"><td>Total</td><td class="right">{{money doc.grandTotal company.currencySymbol}}</td></tr>
+    </table></div>
+  </div>
+  {{#if doc.notes}}<div class="muted" style="margin-top:32px; font-size:11px;">{{doc.notes}}</div>{{/if}}
+</div>

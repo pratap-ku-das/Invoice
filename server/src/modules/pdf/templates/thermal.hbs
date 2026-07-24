@@ -1,0 +1,34 @@
+<div class="doc" style="padding:4px; font-size:11px; font-family:'Courier New', monospace;">
+  <div style="text-align:center;">
+    <div style="font-size:14px; font-weight:800;">{{company.name}}</div>
+    {{#if company.address.line1}}<div>{{company.address.line1}}</div>{{/if}}
+    {{#if company.phone}}<div>Ph: {{company.phone}}</div>{{/if}}
+    {{#if company.gstin}}<div>GSTIN: {{company.gstin}}</div>{{/if}}
+  </div>
+  <div style="border-top:1px dashed #000; margin:6px 0;"></div>
+  <div><strong>{{upper title}}</strong> #{{doc.number}}</div>
+  <div>Date: {{date doc.date}}</div>
+  {{#if doc.partyName}}<div>To: {{doc.partyName}}</div>{{/if}}
+  <div style="border-top:1px dashed #000; margin:6px 0;"></div>
+  <table style="width:100%;">
+    {{#each doc.items}}
+    <tr><td colspan="2">{{this.name}}</td></tr>
+    <tr>
+      <td>{{this.qty}} x {{money this.price}}</td>
+      <td class="right" style="text-align:right;">{{money this.amount}}</td>
+    </tr>
+    {{/each}}
+  </table>
+  <div style="border-top:1px dashed #000; margin:6px 0;"></div>
+  <table style="width:100%;">
+    <tr><td>Subtotal</td><td style="text-align:right;">{{money doc.subtotal}}</td></tr>
+    {{#if doc.taxTotal}}<tr><td>Tax</td><td style="text-align:right;">{{money doc.taxTotal}}</td></tr>{{/if}}
+    {{#if doc.roundOff}}<tr><td>Round Off</td><td style="text-align:right;">{{money doc.roundOff}}</td></tr>{{/if}}
+    <tr style="font-weight:800; font-size:13px;"><td>TOTAL</td><td style="text-align:right;">{{money doc.grandTotal company.currencySymbol}}</td></tr>
+    {{#if doc.paidAmount}}<tr><td>Paid</td><td style="text-align:right;">{{money doc.paidAmount}}</td></tr>
+    <tr><td>Balance</td><td style="text-align:right;">{{money doc.balanceAmount}}</td></tr>{{/if}}
+  </table>
+  <div style="border-top:1px dashed #000; margin:6px 0;"></div>
+  {{#if upiQr}}<div style="text-align:center;"><img src="{{upiQr}}" style="width:120px;height:120px;" /><div>Scan to Pay</div></div>{{/if}}
+  <div style="text-align:center; margin-top:8px;">*** Thank You ***</div>
+</div>

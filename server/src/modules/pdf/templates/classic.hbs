@@ -1,0 +1,28 @@
+<div class="doc" style="padding:36px; font-family:'Times New Roman', serif; border:3px double #111; margin:12px;">
+  <div style="text-align:center;">
+    <div style="font-size:24px; font-weight:700; letter-spacing:.04em;">{{company.name}}</div>
+    <div class="muted">{{company.address.line1}}, {{company.address.city}} {{company.address.state}} {{company.address.pincode}}</div>
+    {{#if company.gstin}}<div class="muted">GSTIN: {{company.gstin}} {{#if company.phone}}| {{company.phone}}{{/if}}</div>{{/if}}
+    <div style="font-size:16px; margin-top:8px; text-decoration:underline; letter-spacing:.1em;">{{upper title}}</div>
+  </div>
+  <div class="flex" style="margin-top:16px;">
+    <div><strong>To:</strong> {{doc.partyName}}<div class="muted">{{doc.billingAddress.city}} {{doc.billingAddress.state}}</div>{{#if doc.partyGstin}}<div class="muted">GSTIN: {{doc.partyGstin}}</div>{{/if}}</div>
+    <div class="right"><div>No. {{doc.number}}</div><div>Dated: {{date doc.date}}</div></div>
+  </div>
+  <table class="items" style="margin-top:16px; border:1px solid #111;">
+    <thead><tr style="border-bottom:1px solid #111;"><th style="border-right:1px solid #111;">Sr.</th><th style="border-right:1px solid #111;">Particulars</th><th style="border-right:1px solid #111;">HSN</th><th class="num" style="border-right:1px solid #111;">Qty</th><th class="num" style="border-right:1px solid #111;">Rate</th><th class="num">Amount</th></tr></thead>
+    <tbody>{{#each doc.items}}<tr style="border-bottom:1px solid #d1d5db;"><td style="border-right:1px solid #111;">{{inc @index}}</td><td style="border-right:1px solid #111;">{{this.name}}</td><td style="border-right:1px solid #111;">{{this.hsn}}</td><td class="num" style="border-right:1px solid #111;">{{this.qty}}</td><td class="num" style="border-right:1px solid #111;">{{money this.price}}</td><td class="num">{{money this.amount}}</td></tr>{{/each}}</tbody>
+  </table>
+  <div class="flex" style="margin-top:12px;">
+    <div style="flex:1;"><strong>Rupees:</strong> <em>{{words doc.grandTotal}}</em></div>
+    <div style="width:240px;"><table class="totals">
+      <tr><td>Subtotal</td><td class="right">{{money doc.subtotal}}</td></tr>
+      {{#if doc.taxTotal}}<tr><td>Tax</td><td class="right">{{money doc.taxTotal}}</td></tr>{{/if}}
+      <tr class="grand" style="border-top:1px solid #111;"><td>Total</td><td class="right">{{money doc.grandTotal company.currencySymbol}}</td></tr>
+    </table></div>
+  </div>
+  <div class="flex" style="margin-top:40px;">
+    <div class="muted">E. &amp; O.E.</div>
+    <div class="right"><div style="border-top:1px solid #111; display:inline-block; padding-top:4px;">for {{company.name}}</div></div>
+  </div>
+</div>

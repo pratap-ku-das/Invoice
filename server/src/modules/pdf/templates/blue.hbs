@@ -1,0 +1,30 @@
+<div class="doc" style="--accent:#2563eb;">
+  <div style="background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; padding:30px 36px;" class="flex">
+    <div>
+      {{#if company.logo}}<img src="{{company.logo}}" style="max-height:52px; margin-bottom:6px; filter:brightness(0) invert(1);" />{{/if}}
+      <div style="font-size:22px; font-weight:800;">{{company.name}}</div>
+      <div style="opacity:.85;">{{company.address.city}} {{company.address.state}} {{company.address.pincode}}</div>
+      {{#if company.gstin}}<div style="opacity:.85;">GSTIN: {{company.gstin}}</div>{{/if}}
+    </div>
+    <div class="right"><div style="font-size:28px; font-weight:800;">{{upper title}}</div><div style="opacity:.9;">#{{doc.number}}</div><div style="opacity:.75;">{{date doc.date}}</div></div>
+  </div>
+  <div style="padding:28px 36px;">
+    <div class="flex">
+      <div><div class="section-title" style="color:#2563eb;">Bill To</div><strong>{{doc.partyName}}</strong><div class="muted">{{doc.billingAddress.city}} {{doc.billingAddress.state}}</div>{{#if doc.partyGstin}}<div class="muted">{{doc.partyGstin}}</div>{{/if}}</div>
+    </div>
+    <table class="items" style="margin-top:16px;">
+      <thead><tr style="background:#eff6ff; color:#1e40af; border-bottom:2px solid #2563eb;"><th>#</th><th>Item</th><th>HSN</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Amount</th></tr></thead>
+      <tbody>{{#each doc.items}}<tr style="border-bottom:1px solid #e5e7eb;"><td>{{inc @index}}</td><td>{{this.name}}</td><td>{{this.hsn}}</td><td class="num">{{this.qty}}</td><td class="num">{{money this.price}}</td><td class="num">{{money this.amount}}</td></tr>{{/each}}</tbody>
+    </table>
+    <div class="flex" style="margin-top:16px;">
+      <div style="flex:1; font-style:italic;">{{words doc.grandTotal}}</div>
+      <div style="width:250px;"><table class="totals">
+        <tr><td class="muted">Subtotal</td><td class="right">{{money doc.subtotal company.currencySymbol}}</td></tr>
+        {{#if doc.taxTotal}}<tr><td class="muted">Tax</td><td class="right">{{money doc.taxTotal company.currencySymbol}}</td></tr>{{/if}}
+        <tr class="grand" style="color:#2563eb; border-top:2px solid #2563eb;"><td>Grand Total</td><td class="right">{{money doc.grandTotal company.currencySymbol}}</td></tr>
+      </table></div>
+    </div>
+    {{#if upiQr}}<div class="qr"><img src="{{upiQr}}" /><div class="muted">Scan to pay &middot; {{company.upiId}}</div></div>{{/if}}
+    <div class="signature"><div style="border-top:1px solid #2563eb; display:inline-block; padding-top:4px;">Authorized Signatory</div></div>
+  </div>
+</div>

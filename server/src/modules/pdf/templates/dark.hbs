@@ -1,0 +1,25 @@
+<div class="doc" style="background:#0f172a; color:#e2e8f0; padding:36px; min-height:100vh;">
+  <div class="flex" style="border-bottom:2px solid #334155; padding-bottom:20px;">
+    <div>
+      <div style="font-size:22px; font-weight:800; color:#38bdf8;">{{company.name}}</div>
+      <div style="color:#94a3b8;">{{company.address.city}} {{company.address.state}}</div>
+      {{#if company.gstin}}<div style="color:#94a3b8;">GSTIN: {{company.gstin}}</div>{{/if}}
+    </div>
+    <div class="right"><div style="font-size:28px; font-weight:800;">{{upper title}}</div><div style="color:#94a3b8;">#{{doc.number}} &middot; {{date doc.date}}</div></div>
+  </div>
+  <div class="flex" style="margin-top:18px;">
+    <div><div style="color:#64748b; font-size:11px; text-transform:uppercase;">Bill To</div><strong>{{doc.partyName}}</strong><div style="color:#94a3b8;">{{doc.billingAddress.city}} {{doc.billingAddress.state}}</div></div>
+  </div>
+  <table class="items" style="margin-top:18px;">
+    <thead><tr style="background:#1e293b; color:#38bdf8;"><th>#</th><th>Item</th><th>HSN</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Amount</th></tr></thead>
+    <tbody>{{#each doc.items}}<tr style="border-bottom:1px solid #1e293b;"><td>{{inc @index}}</td><td>{{this.name}}</td><td>{{this.hsn}}</td><td class="num">{{this.qty}}</td><td class="num">{{money this.price}}</td><td class="num">{{money this.amount}}</td></tr>{{/each}}</tbody>
+  </table>
+  <div class="flex" style="margin-top:16px;">
+    <div style="flex:1; color:#94a3b8; font-style:italic;">{{words doc.grandTotal}}</div>
+    <div style="width:250px;"><table class="totals">
+      <tr><td style="color:#94a3b8;">Subtotal</td><td class="right">{{money doc.subtotal company.currencySymbol}}</td></tr>
+      {{#if doc.taxTotal}}<tr><td style="color:#94a3b8;">Tax</td><td class="right">{{money doc.taxTotal company.currencySymbol}}</td></tr>{{/if}}
+      <tr class="grand" style="color:#38bdf8; border-top:2px solid #334155;"><td>Grand Total</td><td class="right">{{money doc.grandTotal company.currencySymbol}}</td></tr>
+    </table></div>
+  </div>
+</div>

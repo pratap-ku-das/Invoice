@@ -1,0 +1,107 @@
+<div class="doc" style="padding:32px;">
+  <div class="flex" style="align-items:flex-start; border-bottom:3px solid var(--accent); padding-bottom:20px;">
+    <div>
+      {{#if company.logo}}<img src="{{company.logo}}" alt="logo" style="max-height:64px; margin-bottom:8px;" />{{/if}}
+      <div style="font-size:20px; font-weight:800; color:var(--accent);">{{company.name}}</div>
+      <div class="muted">{{company.address.line1}} {{company.address.line2}}</div>
+      <div class="muted">{{company.address.city}} {{company.address.state}} {{company.address.pincode}}</div>
+      {{#if company.gstin}}<div class="muted">GSTIN: {{company.gstin}}</div>{{/if}}
+      {{#if company.phone}}<div class="muted">Ph: {{company.phone}}</div>{{/if}}
+    </div>
+    <div class="right">
+      <div style="font-size:28px; font-weight:800; letter-spacing:.02em;">{{upper title}}</div>
+      <div style="margin-top:8px;"><strong>#{{doc.number}}</strong></div>
+      <div class="muted">Date: {{date doc.date}}</div>
+      {{#if doc.dueDate}}<div class="muted">Due: {{date doc.dueDate}}</div>{{/if}}
+      {{#if doc.status}}<div style="margin-top:6px;"><span class="badge" style="background:var(--accent); color:#fff;">{{upper doc.status}}</span></div>{{/if}}
+    </div>
+  </div>
+
+  <div class="flex" style="margin-top:20px;">
+    <div style="flex:1;">
+      <div class="section-title">Bill To</div>
+      <div style="font-weight:700;">{{doc.partyName}}</div>
+      <div class="muted">{{doc.billingAddress.line1}} {{doc.billingAddress.line2}}</div>
+      <div class="muted">{{doc.billingAddress.city}} {{doc.billingAddress.state}} {{doc.billingAddress.pincode}}</div>
+      {{#if doc.partyGstin}}<div class="muted">GSTIN: {{doc.partyGstin}}</div>{{/if}}
+      {{#if doc.partyPhone}}<div class="muted">Ph: {{doc.partyPhone}}</div>{{/if}}
+    </div>
+    {{#if doc.shippingAddress.line1}}
+    <div style="flex:1;">
+      <div class="section-title">Ship To</div>
+      <div class="muted">{{doc.shippingAddress.line1}} {{doc.shippingAddress.line2}}</div>
+      <div class="muted">{{doc.shippingAddress.city}} {{doc.shippingAddress.state}} {{doc.shippingAddress.pincode}}</div>
+    </div>
+    {{/if}}
+  </div>
+
+  <table class="items" style="margin-top:20px;">
+    <thead>
+      <tr style="background:var(--accent); color:#fff;">
+        <th style="width:28px;">#</th>
+        <th>Item</th>
+        <th>HSN</th>
+        <th class="num">Qty</th>
+        <th class="num">Rate</th>
+        <th class="num">Disc</th>
+        <th class="num">Tax</th>
+        <th class="num">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each doc.items}}
+      <tr style="border-bottom:1px solid #e5e7eb;">
+        <td>{{inc @index}}</td>
+        <td><strong>{{this.name}}</strong>{{#if this.unitName}} <span class="muted">/{{this.unitName}}</span>{{/if}}</td>
+        <td>{{this.hsn}}</td>
+        <td class="num">{{this.qty}}</td>
+        <td class="num">{{money this.price}}</td>
+        <td class="num">{{money this.discount}}</td>
+        <td class="num">{{this.taxRate}}%</td>
+        <td class="num">{{money this.amount}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <div class="flex" style="margin-top:16px;">
+    <div style="flex:1;">
+      <div class="section-title">Amount in Words</div>
+      <div style="font-style:italic; max-width:280px;">{{words doc.grandTotal}}</div>
+      {{#if doc.notes}}<div class="section-title" style="margin-top:12px;">Notes</div><div class="muted">{{doc.notes}}</div>{{/if}}
+      {{#if upiQr}}<div class="qr"><img src="{{upiQr}}" alt="UPI" /><div><div class="section-title">Scan to Pay</div><div class="muted">{{company.upiId}}</div></div></div>{{/if}}
+    </div>
+    <div style="width:280px;">
+      <table class="totals">
+        <tr><td class="muted">Subtotal</td><td class="right">{{money doc.subtotal company.currencySymbol}}</td></tr>
+        {{#if doc.docDiscount}}<tr><td class="muted">Discount</td><td class="right">-{{money doc.docDiscount company.currencySymbol}}</td></tr>{{/if}}
+        {{#if doc.cgst}}<tr><td class="muted">CGST</td><td class="right">{{money doc.cgst company.currencySymbol}}</td></tr>
+        <tr><td class="muted">SGST</td><td class="right">{{money doc.sgst company.currencySymbol}}</td></tr>{{/if}}
+        {{#if doc.igst}}<tr><td class="muted">IGST</td><td class="right">{{money doc.igst company.currencySymbol}}</td></tr>{{/if}}
+        {{#if doc.cess}}<tr><td class="muted">CESS</td><td class="right">{{money doc.cess company.currencySymbol}}</td></tr>{{/if}}
+        {{#if doc.shippingCharge}}<tr><td class="muted">Shipping</td><td class="right">{{money doc.shippingCharge company.currencySymbol}}</td></tr>{{/if}}
+        {{#if doc.roundOff}}<tr><td class="muted">Round Off</td><td class="right">{{money doc.roundOff company.currencySymbol}}</td></tr>{{/if}}
+        <tr class="grand" style="border-top:2px solid var(--accent);"><td>Grand Total</td><td class="right">{{money doc.grandTotal company.currencySymbol}}</td></tr>
+        {{#if doc.paidAmount}}<tr><td class="muted">Paid</td><td class="right">{{money doc.paidAmount company.currencySymbol}}</td></tr>
+        <tr><td><strong>Balance</strong></td><td class="right"><strong>{{money doc.balanceAmount company.currencySymbol}}</strong></td></tr>{{/if}}
+      </table>
+    </div>
+  </div>
+
+  {{#if doc.terms}}<div style="margin-top:20px;"><div class="section-title">Terms &amp; Conditions</div><div class="muted">{{doc.terms}}</div></div>{{/if}}
+
+  <div class="flex" style="margin-top:24px; align-items:flex-end;">
+    {{#if company.bankName}}
+    <div>
+      <div class="section-title">Bank Details</div>
+      <div class="muted">{{company.bankName}} &bull; A/C {{company.bankAccount}}</div>
+      <div class="muted">IFSC {{company.bankIfsc}}</div>
+    </div>
+    {{/if}}
+    <div class="signature">
+      {{#if company.signature}}<img src="{{company.signature}}" alt="sign" style="max-height:56px;" /><br/>{{/if}}
+      <div style="border-top:1px solid #9ca3af; padding-top:4px; display:inline-block;">Authorized Signatory</div>
+      <div class="muted">for {{company.name}}</div>
+    </div>
+  </div>
+</div>

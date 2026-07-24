@@ -1,0 +1,19 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: invoice-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    healthcheck:
+      test: |
+        mongosh --quiet --eval "try { rs.status().ok } catch (e) { rs.initiate({_id:'rs0',members:[{_id:0,host:'localhost:27017'}]}).ok }"
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

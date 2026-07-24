@@ -1,0 +1,33 @@
+<div class="doc">
+  <div style="background:#111827; color:#fff; padding:28px 36px;" class="flex">
+    <div>
+      {{#if company.logo}}<img src="{{company.logo}}" style="max-height:48px; margin-bottom:6px;" />{{/if}}
+      <div style="font-size:20px; font-weight:800;">{{company.name}}</div>
+      <div style="opacity:.7;">{{company.address.city}} {{company.address.state}}</div>
+      {{#if company.gstin}}<div style="opacity:.7;">GSTIN: {{company.gstin}}</div>{{/if}}
+    </div>
+    <div class="right">
+      <div style="font-size:26px; font-weight:800;">{{upper title}}</div>
+      <div style="opacity:.8;">#{{doc.number}} &middot; {{date doc.date}}</div>
+    </div>
+  </div>
+  <div style="padding:28px 36px;">
+    <div class="flex">
+      <div><div class="section-title">Bill To</div><strong>{{doc.partyName}}</strong><div class="muted">{{doc.billingAddress.city}} {{doc.billingAddress.state}}</div>{{#if doc.partyGstin}}<div class="muted">{{doc.partyGstin}}</div>{{/if}}</div>
+      {{#if doc.dueDate}}<div class="right"><div class="section-title">Due Date</div>{{date doc.dueDate}}</div>{{/if}}
+    </div>
+    <table class="items" style="margin-top:18px;">
+      <thead><tr style="background:#f3f4f6; border-bottom:2px solid #111827;"><th>#</th><th>Item</th><th>HSN</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Amount</th></tr></thead>
+      <tbody>{{#each doc.items}}<tr style="border-bottom:1px solid #e5e7eb;"><td>{{inc @index}}</td><td><strong>{{this.name}}</strong></td><td>{{this.hsn}}</td><td class="num">{{this.qty}}</td><td class="num">{{money this.price}}</td><td class="num">{{money this.amount}}</td></tr>{{/each}}</tbody>
+    </table>
+    <div class="flex" style="margin-top:16px;">
+      <div style="flex:1; font-style:italic;">{{words doc.grandTotal}}</div>
+      <div style="width:260px;"><table class="totals">
+        <tr><td class="muted">Subtotal</td><td class="right">{{money doc.subtotal company.currencySymbol}}</td></tr>
+        {{#if doc.taxTotal}}<tr><td class="muted">Tax</td><td class="right">{{money doc.taxTotal company.currencySymbol}}</td></tr>{{/if}}
+        <tr class="grand" style="background:#111827; color:#fff;"><td style="padding:8px;">Grand Total</td><td class="right" style="padding:8px;">{{money doc.grandTotal company.currencySymbol}}</td></tr>
+      </table></div>
+    </div>
+    <div class="signature"><div style="border-top:1px solid #111827; display:inline-block; padding-top:4px;">Authorized Signatory</div></div>
+  </div>
+</div>
