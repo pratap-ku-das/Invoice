@@ -66,8 +66,6 @@ function SuspenseWrapper({ children }: { children: React.ReactNode }) {
 }
 
 function RootRoute() {
-  const { ready } = useAuth();
-  if (!ready) return null;
   return (
     <SuspenseWrapper>
       <LandingPage />
