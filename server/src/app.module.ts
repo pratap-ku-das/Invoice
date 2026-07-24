@@ -35,7 +35,7 @@ import { AdminModule } from './modules/admin/admin.module';
         redact: ['req.headers.authorization', 'req.headers.cookie'],
       },
     }),
-    MongooseModule.forRoot(env.MONGO_URI),
+    MongooseModule.forRoot(process.env.MONGODB_URI || process.env.MONGO_URI || env.MONGO_URI),
     EventEmitterModule.forRoot(),
     ScheduleModule.forRoot(),
 

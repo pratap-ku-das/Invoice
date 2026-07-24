@@ -6,6 +6,7 @@ const envSchema = z.object({
   MONGO_URI: z
     .string()
     .default('mongodb://localhost:27017/invoice?replicaSet=rs0&directConnection=true'),
+  MONGODB_URI: z.string().optional(),
   JWT_ACCESS_SECRET: z.string().default('dev-access-secret'),
   JWT_REFRESH_SECRET: z.string().default('dev-refresh-secret'),
   JWT_ACCESS_TTL: z.string().default('15m'),
