@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { DollarSign, ArrowUpRight, CheckCircle2, ShieldCheck, Loader2, Building2 } from 'lucide-react';
+import { DollarSign, ArrowUpRight, CheckCircle2, Loader2, Building2 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Badge } from '@/components/ui/primitives';
 
