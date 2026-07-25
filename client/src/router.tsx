@@ -3,49 +3,68 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PlatformAdminLayout } from '@/components/layout/PlatformAdminLayout';
 
-const LandingPage = lazy(() => import('@/pages/landing/LandingPage'));
-const CompaniesManagement = lazy(() => import('@/pages/admin/CompaniesManagement'));
-const PlatformDashboard = lazy(() => import('@/pages/admin/PlatformDashboard'));
-const PlatformSubscriptions = lazy(() => import('@/pages/admin/PlatformSubscriptions'));
-const PlatformPayments = lazy(() => import('@/pages/admin/PlatformPayments'));
-const PlatformUsers = lazy(() => import('@/pages/admin/PlatformUsers'));
-const PlatformSupport = lazy(() => import('@/pages/admin/PlatformSupport'));
-const PlatformAnalytics = lazy(() => import('@/pages/admin/PlatformAnalytics'));
-const PlatformSystem = lazy(() => import('@/pages/admin/PlatformSystem'));
-const PlatformAuditLogs = lazy(() => import('@/pages/admin/PlatformAuditLogs'));
-const PlatformProfile = lazy(() => import('@/pages/admin/PlatformProfile'));
-const OnboardingWizard = lazy(() => import('@/pages/onboarding/OnboardingWizard'));
+function lazyRetry<T extends React.ComponentType<any>>(
+  componentImport: () => Promise<{ default: T }>,
+) {
+  return lazy(async () => {
+    const pageHasBeenReloaded = sessionStorage.getItem('page-reloaded') === 'true';
+    try {
+      const component = await componentImport();
+      sessionStorage.removeItem('page-reloaded');
+      return component;
+    } catch (error) {
+      if (!pageHasBeenReloaded) {
+        sessionStorage.setItem('page-reloaded', 'true');
+        window.location.reload();
+      }
+      throw error;
+    }
+  });
+}
 
-const Login = lazy(() => import('@/pages/auth/Login'));
-const Register = lazy(() => import('@/pages/auth/Register'));
+const LandingPage = lazyRetry(() => import('@/pages/landing/LandingPage'));
+const CompaniesManagement = lazyRetry(() => import('@/pages/admin/CompaniesManagement'));
+const PlatformDashboard = lazyRetry(() => import('@/pages/admin/PlatformDashboard'));
+const PlatformSubscriptions = lazyRetry(() => import('@/pages/admin/PlatformSubscriptions'));
+const PlatformPayments = lazyRetry(() => import('@/pages/admin/PlatformPayments'));
+const PlatformUsers = lazyRetry(() => import('@/pages/admin/PlatformUsers'));
+const PlatformSupport = lazyRetry(() => import('@/pages/admin/PlatformSupport'));
+const PlatformAnalytics = lazyRetry(() => import('@/pages/admin/PlatformAnalytics'));
+const PlatformSystem = lazyRetry(() => import('@/pages/admin/PlatformSystem'));
+const PlatformAuditLogs = lazyRetry(() => import('@/pages/admin/PlatformAuditLogs'));
+const PlatformProfile = lazyRetry(() => import('@/pages/admin/PlatformProfile'));
+const OnboardingWizard = lazyRetry(() => import('@/pages/onboarding/OnboardingWizard'));
 
-const Dashboard = lazy(() => import('@/pages/dashboard/Dashboard'));
+const Login = lazyRetry(() => import('@/pages/auth/Login'));
+const Register = lazyRetry(() => import('@/pages/auth/Register'));
 
-const DocumentList = lazy(() => import('@/pages/documents/DocumentList'));
-const DocumentForm = lazy(() => import('@/pages/documents/DocumentForm'));
-const DocumentView = lazy(() => import('@/pages/documents/DocumentView'));
+const Dashboard = lazyRetry(() => import('@/pages/dashboard/Dashboard'));
 
-const Customers = lazy(() => import('@/pages/parties/Customers'));
-const Suppliers = lazy(() => import('@/pages/parties/Suppliers'));
-const PartyDetail = lazy(() => import('@/pages/parties/PartyDetail'));
+const DocumentList = lazyRetry(() => import('@/pages/documents/DocumentList'));
+const DocumentForm = lazyRetry(() => import('@/pages/documents/DocumentForm'));
+const DocumentView = lazyRetry(() => import('@/pages/documents/DocumentView'));
 
-const Products = lazy(() => import('@/pages/catalog/Products'));
-const Categories = lazy(() => import('@/pages/catalog/Categories'));
-const Units = lazy(() => import('@/pages/catalog/Units'));
-const PriceList = lazy(() => import('@/pages/catalog/PriceList'));
+const Customers = lazyRetry(() => import('@/pages/parties/Customers'));
+const Suppliers = lazyRetry(() => import('@/pages/parties/Suppliers'));
+const PartyDetail = lazyRetry(() => import('@/pages/parties/PartyDetail'));
 
-const Expenses = lazy(() => import('@/pages/expenses/Expenses'));
-const Payments = lazy(() => import('@/pages/payments/Payments'));
-const Stock = lazy(() => import('@/pages/stock/Stock'));
-const Barcode = lazy(() => import('@/pages/barcode/Barcode'));
+const Products = lazyRetry(() => import('@/pages/catalog/Products'));
+const Categories = lazyRetry(() => import('@/pages/catalog/Categories'));
+const Units = lazyRetry(() => import('@/pages/catalog/Units'));
+const PriceList = lazyRetry(() => import('@/pages/catalog/PriceList'));
 
-const GstReports = lazy(() => import('@/pages/reports/GstReports'));
-const Reports = lazy(() => import('@/pages/reports/Reports'));
+const Expenses = lazyRetry(() => import('@/pages/expenses/Expenses'));
+const Payments = lazyRetry(() => import('@/pages/payments/Payments'));
+const Stock = lazyRetry(() => import('@/pages/stock/Stock'));
+const Barcode = lazyRetry(() => import('@/pages/barcode/Barcode'));
 
-const Settings = lazy(() => import('@/pages/settings/Settings'));
-const PrintSettings = lazy(() => import('@/pages/settings/PrintSettings'));
-const Plan = lazy(() => import('@/pages/settings/Plan'));
-const Notifications = lazy(() => import('@/pages/notifications/Notifications'));
+const GstReports = lazyRetry(() => import('@/pages/reports/GstReports'));
+const Reports = lazyRetry(() => import('@/pages/reports/Reports'));
+
+const Settings = lazyRetry(() => import('@/pages/settings/Settings'));
+const PrintSettings = lazyRetry(() => import('@/pages/settings/PrintSettings'));
+const Plan = lazyRetry(() => import('@/pages/settings/Plan'));
+const Notifications = lazyRetry(() => import('@/pages/notifications/Notifications'));
 
 function SuspenseWrapper({ children }: { children: React.ReactNode }) {
   return (
