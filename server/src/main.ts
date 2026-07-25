@@ -17,8 +17,12 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
   app.setGlobalPrefix('api');
   app.enableCors({
-    origin: [env.CLIENT_ORIGIN, 'https://dev.pratap.website', 'http://localhost:5173', 'https://srv-d9hlnn6q1p3s73a53qd0.onrender.com'],
+    origin: (origin, callback) => {
+      callback(null, true);
+    },
     credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization', 'X-Requested-With'],
   });
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: false }),
