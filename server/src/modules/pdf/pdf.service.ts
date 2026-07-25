@@ -25,12 +25,24 @@ export class PdfService implements OnModuleDestroy {
     this.launching = puppeteer
       .launch({
         headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-gpu',
+          '--no-first-run',
+          '--no-zygote',
+          '--single-process',
+        ],
       })
       .then((b) => {
         this.browser = b;
         this.launching = null;
         return b;
+      })
+      .catch((err) => {
+        this.launching = null;
+        throw err;
       });
     return this.launching;
   }

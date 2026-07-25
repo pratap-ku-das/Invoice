@@ -47,16 +47,17 @@ export class PdfController {
 
   /** Inline HTML preview (client shows in iframe / print) */
   @Get(':docType/:id/preview')
-  @Header('Content-Type', 'text/html')
   async preview(
     @CurrentUser('companyId') companyId: string,
     @Param('docType') docType: string,
     @Param('id') id: string,
     @Query() q: RenderRequest,
+    @Res() res: Response,
   ) {
     this.assertType(docType);
     const { html } = await this.render.buildHtml(companyId, docType as DocType, id, q);
-    return html;
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.send(html);
   }
 
   @Get(':docType/:id/pdf')
