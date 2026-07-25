@@ -45,7 +45,7 @@ export function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; onClose:
           <X className="h-5 w-5" />
         </button>
       </div>
-      <nav className="flex-1 overflow-y-auto px-3 pb-6">
+      <nav className="flex-1 overflow-y-auto px-3 pb-6 no-scrollbar">
         {NAV.map((section) => (
           <div key={section.section}>
             <div className="section-label">{section.section}</div>

@@ -14,6 +14,7 @@ import {
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '@/store/auth';
 import { useTheme } from '@/store/theme';
+import { CompanySwitcher } from './CompanySwitcher';
 
 function UserMenu() {
   const { user, logout } = useAuth();
@@ -114,14 +115,7 @@ export function Topbar({
         <Menu className="h-6 w-6" />
       </button>
 
-      <div className="flex items-center gap-2.5 rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-1.5 dark:border-slate-800 dark:bg-slate-900/50">
-        <div className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-lg bg-white shadow-xs border border-slate-200 dark:border-slate-800">
-          <img src="/logos/app_logo.jpg" alt="Logo" className="h-full w-full object-contain p-0.5" />
-        </div>
-        <span className="text-xs font-bold tracking-tight text-slate-800 dark:text-slate-200">
-          PaperBolt Monogram
-        </span>
-      </div>
+      <CompanySwitcher />
 
       <button
         onClick={onSearch}

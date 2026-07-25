@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Building2, Check, ChevronsUpDown, Plus } from 'lucide-react';
+import { Check, ChevronsUpDown, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { api, apiError } from '@/lib/api';
 import { useAuth } from '@/store/auth';
@@ -123,10 +123,18 @@ export function CompanySwitcher() {
       <button
         onClick={() => setOpen((o) => !o)}
         disabled={switching}
-        className="flex max-w-[180px] items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium shadow-card transition hover:bg-slate-50 sm:max-w-[220px] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none dark:hover:bg-slate-800"
+        className="flex max-w-[200px] items-center gap-2 rounded-xl border border-slate-200/90 bg-slate-50/70 px-2.5 py-1.5 text-xs font-bold shadow-xs transition hover:bg-slate-100 sm:max-w-[240px] dark:border-slate-800 dark:bg-slate-900/80 dark:hover:bg-slate-800"
       >
-        <Building2 className="h-4 w-4 shrink-0 text-brand-500" />
-        <span className="hidden truncate sm:inline">{current?.name ?? 'My company'}</span>
+        <div className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-md bg-white shadow-xs border border-slate-200 dark:border-slate-800">
+          {current?.logo ? (
+            <img src={current.logo} alt={current.name} className="h-full w-full object-contain p-0.5" />
+          ) : (
+            <span className="text-[11px] font-extrabold text-brand-600 dark:text-brand-400">
+              {current?.name?.[0]?.toUpperCase() ?? 'C'}
+            </span>
+          )}
+        </div>
+        <span className="truncate text-slate-800 dark:text-slate-200">{current?.name ?? 'My Company'}</span>
         <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-slate-400" />
       </button>
 

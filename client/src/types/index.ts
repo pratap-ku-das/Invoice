@@ -20,6 +20,7 @@ export interface CompanySummary {
   role: Role;
   isDefault: boolean;
   plan: string;
+  logo?: string;
 }
 
 export interface PlanLimits {
