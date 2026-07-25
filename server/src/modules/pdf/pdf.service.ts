@@ -1,5 +1,57 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import puppeteer, { Browser } from 'puppeteer';
+import * as fs from 'fs';
+import * as path from 'path';
+
+function findChromeExecutable(): string | undefined {
+  if (process.env.PUPPETEER_EXECUTABLE_PATH && fs.existsSync(process.env.PUPPETEER_EXECUTABLE_PATH)) {
+    return process.env.PUPPETEER_EXECUTABLE_PATH;
+  }
+
+  const systemPaths = [
+    '/usr/bin/google-chrome',
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+  ];
+  for (const p of systemPaths) {
+    if (fs.existsSync(p)) return p;
+  }
+
+  try {
+    const defaultPath = puppeteer.executablePath();
+    if (fs.existsSync(defaultPath)) return defaultPath;
+  } catch (e) {}
+
+  const searchDirs = [
+    path.join(process.cwd(), '.cache'),
+    path.join(process.cwd(), 'server', '.cache'),
+    '/opt/render/.cache',
+  ];
+
+  for (const dir of searchDirs) {
+    if (!fs.existsSync(dir)) continue;
+    const found = searchForChromeFile(dir);
+    if (found) return found;
+  }
+
+  return undefined;
+}
+
+function searchForChromeFile(dir: string): string | undefined {
+  try {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        const sub = searchForChromeFile(fullPath);
+        if (sub) return sub;
+      } else if (entry.name === 'chrome' || entry.name === 'chrome-linux') {
+        return fullPath;
+      }
+    }
+  } catch (e) {}
+  return undefined;
+}
 
 export type PaperSize = 'A4' | 'thermal-58' | 'thermal-80';
 export type Orientation = 'portrait' | 'landscape';
@@ -10,10 +62,6 @@ interface RenderOptions {
   marginMm?: number;
 }
 
-/**
- * Singleton headless browser. Pages are created per-render and closed
- * immediately to keep memory flat under bulk generation.
- */
 @Injectable()
 export class PdfService implements OnModuleDestroy {
   private browser: Browser | null = null;
@@ -23,15 +71,12 @@ export class PdfService implements OnModuleDestroy {
     if (this.browser?.connected) return this.browser;
     if (this.launching) return this.launching;
 
-    let execPath: string | undefined;
-    try {
-      execPath = puppeteer.executablePath();
-    } catch (e) {}
+    const execPath = findChromeExecutable();
 
     this.launching = puppeteer
       .launch({
         headless: true,
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || execPath,
+        ...(execPath ? { executablePath: execPath } : {}),
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
