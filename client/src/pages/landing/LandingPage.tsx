@@ -640,9 +640,13 @@ export default function LandingPage() {
                 </div>
               </div>
               <div className="lg:col-span-4 flex justify-center">
-                <div className="rounded-2xl border border-white/20 bg-slate-950/80 p-6 backdrop-blur-xl shadow-2xl text-center space-y-3 w-full max-w-xs">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-brand-500 to-indigo-600 font-black text-2xl text-white shadow-glow mx-auto">
-                    PKD
+                <div className="rounded-2xl border border-white/20 bg-slate-950/80 p-6 backdrop-blur-xl shadow-2xl text-center space-y-3 w-full max-w-xs group hover:border-brand-500/50 transition">
+                  <div className="relative mx-auto h-28 w-28 overflow-hidden rounded-2xl border-2 border-brand-400/40 shadow-glow">
+                    <img
+                      src="/pratap_das.png"
+                      alt="Pratap Kumar Das - Founder of PaperBolt Monogram"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
                   </div>
                   <div>
                     <h3 className="font-extrabold text-base text-white">Pratap Kumar Das</h3>
