@@ -1,33 +1,109 @@
-<div class="doc" style="padding:36px; font-family:Georgia, 'Times New Roman', serif;">
-  <div class="flex" style="align-items:flex-start;">
-    <div>
-      {{#if company.logo}}<img src="{{company.logo}}" style="max-height:60px;" />{{/if}}
-      <div style="font-size:22px; font-weight:700;">{{company.name}}</div>
-      <div class="muted">{{company.address.line1}}, {{company.address.city}} {{company.address.pincode}}</div>
+<div class="doc" style="padding: 24px 28px;">
+  <div class="header-banner" style="border-bottom-color: #1E40AF;">
+    <div style="flex: 1.2;">
+      {{#if company.logo}}<img src="{{company.logo}}" alt="logo" class="company-logo" />{{/if}}
+      <div class="company-name" style="color: #1E40AF;">{{company.name}}</div>
+      <div class="muted">{{company.address.line1}} {{company.address.line2}}</div>
+      <div class="muted">{{company.address.city}} {{company.address.state}} {{company.address.pincode}}</div>
       {{#if company.gstin}}<div class="muted">GSTIN: {{company.gstin}}</div>{{/if}}
+      <div class="muted">Ph: {{company.phone}} &bull; {{company.email}}</div>
     </div>
-    <div class="right">
-      <div style="font-size:26px; letter-spacing:.08em;">{{upper title}}</div>
-      <div>#{{doc.number}}</div>
-      <div class="muted">{{date doc.date}}</div>
+    <div class="right" style="flex: 0.8;">
+      <div class="doc-title" style="color: #1E40AF;">{{upper title}}</div>
+      <div style="font-size: 16px; font-weight: 800; margin-top: 4px;">#{{doc.number}}</div>
+      <div class="card" style="margin-top: 10px;">
+        <div style="display: flex; justify-content: space-between;"><span class="muted">Date:</span><span class="bold">{{date doc.date}}</span></div>
+        {{#if doc.dueDate}}<div style="display: flex; justify-content: space-between;"><span class="muted">Due Date:</span><span class="bold">{{date doc.dueDate}}</span></div>{{/if}}
+        {{#if doc.status}}<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px; padding-top: 4px; border-top: 1px solid var(--border);"><span class="muted">Status:</span><span class="badge badge-{{lower doc.status}}">{{upper doc.status}}</span></div>{{/if}}
+      </div>
     </div>
   </div>
-  <div style="height:2px; background:#111; margin:16px 0;"></div>
-  <div class="flex">
-    <div><div class="section-title">Billed To</div><div style="font-weight:700;">{{doc.partyName}}</div><div class="muted">{{doc.billingAddress.city}} {{doc.billingAddress.state}}</div>{{#if doc.partyGstin}}<div class="muted">GSTIN: {{doc.partyGstin}}</div>{{/if}}</div>
-    <div class="right"><div class="section-title">Reference</div><div class="muted">{{doc.referenceNumber}}</div>{{#if doc.dueDate}}<div class="muted">Due {{date doc.dueDate}}</div>{{/if}}</div>
+
+  <div class="grid-2" style="margin-bottom: 20px;">
+    <div class="card">
+      <div class="card-title">Billed To</div>
+      <div style="font-size: 14px; font-weight: 700;">{{doc.partyName}}</div>
+      <div class="muted">{{doc.billingAddress.line1}} {{doc.billingAddress.line2}}</div>
+      <div class="muted">{{doc.billingAddress.city}} {{doc.billingAddress.state}} {{doc.billingAddress.pincode}}</div>
+      {{#if doc.partyGstin}}<div style="margin-top: 4px;"><strong>GSTIN:</strong> {{doc.partyGstin}}</div>{{/if}}
+    </div>
+    <div class="card">
+      <div class="card-title">Shipped To</div>
+      <div style="font-weight: 600;">{{doc.partyName}}</div>
+      {{#if doc.shippingAddress.line1}}
+        <div class="muted">{{doc.shippingAddress.line1}} {{doc.shippingAddress.line2}}</div>
+        <div class="muted">{{doc.shippingAddress.city}} {{doc.shippingAddress.state}}</div>
+      {{else}}
+        <div class="muted">Same as billing address</div>
+      {{/if}}
+    </div>
   </div>
-  <table class="items" style="margin-top:18px; border:1px solid #111;">
-    <thead><tr style="border-bottom:2px solid #111;"><th>#</th><th>Description</th><th>HSN</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Amount</th></tr></thead>
-    <tbody>{{#each doc.items}}<tr style="border-bottom:1px solid #d1d5db;"><td>{{inc @index}}</td><td>{{this.name}}</td><td>{{this.hsn}}</td><td class="num">{{this.qty}}</td><td class="num">{{money this.price}}</td><td class="num">{{money this.amount}}</td></tr>{{/each}}</tbody>
+
+  <table class="items-table">
+    <thead>
+      <tr style="background: #1E40AF;">
+        <th class="center" style="width: 36px;">#</th>
+        <th>Item &amp; Description</th>
+        <th class="center" style="width: 80px;">HSN</th>
+        <th class="num" style="width: 60px;">Qty</th>
+        <th class="num" style="width: 90px;">Rate</th>
+        <th class="num" style="width: 75px;">Disc</th>
+        <th class="num" style="width: 65px;">Tax</th>
+        <th class="num" style="width: 105px;">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each doc.items}}
+      <tr>
+        <td class="center muted">{{inc @index}}</td>
+        <td><strong>{{this.name}}</strong></td>
+        <td class="center muted">{{#if this.hsn}}{{this.hsn}}{{else}}-{{/if}}</td>
+        <td class="num bold">{{this.qty}}</td>
+        <td class="num">{{money this.price}}</td>
+        <td class="num muted">{{money this.discount}}</td>
+        <td class="num muted">{{this.taxRate}}%</td>
+        <td class="num bold" style="color: #1E40AF;">{{money this.amount}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
   </table>
-  <div class="flex" style="margin-top:14px;">
-    <div style="flex:1; font-style:italic;">{{words doc.grandTotal}}</div>
-    <div style="width:260px;"><table class="totals">
-      <tr><td>Subtotal</td><td class="right">{{money doc.subtotal company.currencySymbol}}</td></tr>
-      {{#if doc.taxTotal}}<tr><td>Tax</td><td class="right">{{money doc.taxTotal company.currencySymbol}}</td></tr>{{/if}}
-      <tr class="grand" style="border-top:2px solid #111;"><td>Total</td><td class="right">{{money doc.grandTotal company.currencySymbol}}</td></tr>
-    </table></div>
+
+  <div class="grid-2" style="margin-top: 20px; align-items: flex-start;">
+    <div style="flex: 1.1; display: flex; flex-direction: column; gap: 12px;">
+      <div class="card">
+        <div class="card-title">Amount in Words</div>
+        <div style="font-weight: 600;">{{words doc.grandTotal}}</div>
+      </div>
+      {{#if upiQr}}
+      <div class="card" style="display: flex; align-items: center; gap: 12px;">
+        <img src="{{upiQr}}" alt="UPI QR" style="width: 80px; height: 80px;" />
+        <div>
+          <div class="card-title">Scan to Pay via UPI</div>
+          <div style="font-weight: 700; color: #1E40AF;">{{company.upiId}}</div>
+        </div>
+      </div>
+      {{/if}}
+    </div>
+    <div style="flex: 0.9;" class="card">
+      <div class="card-title" style="border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-bottom: 8px;">Summary</div>
+      <table class="totals-table">
+        <tr><td class="muted">Subtotal</td><td class="right bold">{{money doc.subtotal company.currencySymbol}}</td></tr>
+        {{#if doc.docDiscount}}<tr><td class="muted">Discount</td><td class="right">-{{money doc.docDiscount company.currencySymbol}}</td></tr>{{/if}}
+        {{#if doc.cgst}}<tr><td class="muted">CGST</td><td class="right">{{money doc.cgst company.currencySymbol}}</td></tr><tr><td class="muted">SGST</td><td class="right">{{money doc.sgst company.currencySymbol}}</td></tr>{{/if}}
+        {{#if doc.igst}}<tr><td class="muted">IGST</td><td class="right">{{money doc.igst company.currencySymbol}}</td></tr>{{/if}}
+        {{#if doc.roundOff}}<tr><td class="muted">Round Off</td><td class="right">{{money doc.roundOff company.currencySymbol}}</td></tr>{{/if}}
+        <tr class="grand-row" style="background: #F0F9FF;"><td style="color: #1E40AF;">Grand Total</td><td class="right" style="color: #1E40AF;">{{money doc.grandTotal company.currencySymbol}}</td></tr>
+      </table>
+    </div>
   </div>
-  <div class="signature">{{#if company.signature}}<img src="{{company.signature}}" style="max-height:52px;" /><br/>{{/if}}<div style="border-top:1px solid #111; display:inline-block; padding-top:4px;">Authorized Signatory</div></div>
+
+  <div class="signature-grid">
+    <div class="signature-box"><div class="signature-line">Customer Acceptance</div></div>
+    <div class="signature-box"><div class="signature-line">Prepared By</div></div>
+    <div class="signature-box">
+      {{#if company.signature}}<img src="{{company.signature}}" alt="Sign" style="max-height: 48px;" /><br/>{{/if}}
+      <div class="signature-line">Authorized Signatory</div>
+      <div class="muted" style="font-size: 10.5px;">for {{company.name}}</div>
+    </div>
+  </div>
 </div>

@@ -59,6 +59,8 @@ export class TemplateService implements OnModuleInit {
     Handlebars.registerHelper('or', (...args: unknown[]) => args.slice(0, -1).some(Boolean));
     Handlebars.registerHelper('and', (...args: unknown[]) => args.slice(0, -1).every(Boolean));
     Handlebars.registerHelper('upper', (v: unknown) => String(v ?? '').toUpperCase());
+    Handlebars.registerHelper('lower', (v: unknown) => String(v ?? '').toLowerCase());
+    Handlebars.registerHelper('nowDate', () => dayjs().format('DD MMM YYYY HH:mm'));
 
     const dir = this.templateDir();
     const basePath = join(dir, 'base.hbs');

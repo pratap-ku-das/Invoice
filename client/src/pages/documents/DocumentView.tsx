@@ -217,13 +217,15 @@ export default function DocumentView({ docType }: { docType: string }) {
       </div>
 
       {/* Live preview */}
-      <div className="card overflow-hidden">
-        <iframe
-          key={previewUrl}
-          src={previewUrl}
-          title="Document preview"
-          className="h-[75vh] w-full bg-white"
-        />
+      <div className="rounded-xl bg-slate-100/90 p-4 sm:p-8 flex justify-center border border-slate-200 shadow-inner">
+        <div className="w-full max-w-[900px] bg-white rounded-xl shadow-2xl overflow-hidden border border-slate-200">
+          <iframe
+            key={previewUrl}
+            src={previewUrl}
+            title="Document preview"
+            className="h-[82vh] w-full bg-white border-0"
+          />
+        </div>
       </div>
 
       {/* Payment modal */}

@@ -8,13 +8,22 @@ import { DocType } from '../documents/document.schema';
 
 const TITLES: Record<string, string> = {
   invoice: 'Tax Invoice',
-  estimate: 'Quotation',
+  estimate: 'Quotation & Estimate',
   proforma: 'Proforma Invoice',
   challan: 'Delivery Challan',
   'sales-return': 'Credit Note',
   'purchase-bill': 'Purchase Bill',
   'purchase-order': 'Purchase Order',
   'purchase-return': 'Debit Note',
+  receipt: 'Receipt Voucher',
+  payment: 'Payment Receipt',
+  expense: 'Expense Voucher',
+  journal: 'Journal Voucher',
+  'sales-order': 'Sales Order',
+  stock: 'Stock Transfer Note',
+  statement: 'Customer Statement',
+  ledger: 'Account Ledger',
+  salary: 'Employee Salary Slip',
 };
 
 export interface RenderRequest {

@@ -1,28 +1,98 @@
-<div class="doc" style="padding:36px; font-family:'Times New Roman', serif; border:3px double #111; margin:12px;">
-  <div style="text-align:center;">
-    <div style="font-size:24px; font-weight:700; letter-spacing:.04em;">{{company.name}}</div>
-    <div class="muted">{{company.address.line1}}, {{company.address.city}} {{company.address.state}} {{company.address.pincode}}</div>
-    {{#if company.gstin}}<div class="muted">GSTIN: {{company.gstin}} {{#if company.phone}}| {{company.phone}}{{/if}}</div>{{/if}}
-    <div style="font-size:16px; margin-top:8px; text-decoration:underline; letter-spacing:.1em;">{{upper title}}</div>
+<div class="doc" style="padding: 24px 28px;">
+  <div style="border: 2px solid #374151; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #374151; padding-bottom: 12px;">
+      <div>
+        <div style="font-size: 20px; font-weight: 800; color: #111827;">{{company.name}}</div>
+        <div class="muted">{{company.address.line1}} {{company.address.line2}}, {{company.address.city}}</div>
+        {{#if company.gstin}}<div class="muted">GSTIN: {{company.gstin}}</div>{{/if}}
+      </div>
+      <div class="right">
+        <div style="font-size: 24px; font-weight: 800; color: #111827;">{{upper title}}</div>
+        <div style="font-size: 15px; font-weight: 700;">No: #{{doc.number}}</div>
+        <div class="muted">Date: {{date doc.date}}</div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 16px; margin-top: 12px;">
+      <div style="flex: 1;">
+        <div class="card-title">Billed To</div>
+        <strong style="font-size: 13.5px;">{{doc.partyName}}</strong>
+        <div class="muted">{{doc.billingAddress.line1}} {{doc.billingAddress.city}}</div>
+        {{#if doc.partyGstin}}<div class="muted">GSTIN: {{doc.partyGstin}}</div>{{/if}}
+      </div>
+      <div style="flex: 1;">
+        <div class="card-title">Payment &amp; Terms</div>
+        {{#if doc.dueDate}}<div><span class="muted">Due Date:</span> {{date doc.dueDate}}</div>{{/if}}
+        {{#if doc.status}}<div><span class="muted">Status:</span> <span class="badge badge-{{lower doc.status}}">{{upper doc.status}}</span></div>{{/if}}
+      </div>
+    </div>
   </div>
-  <div class="flex" style="margin-top:16px;">
-    <div><strong>To:</strong> {{doc.partyName}}<div class="muted">{{doc.billingAddress.city}} {{doc.billingAddress.state}}</div>{{#if doc.partyGstin}}<div class="muted">GSTIN: {{doc.partyGstin}}</div>{{/if}}</div>
-    <div class="right"><div>No. {{doc.number}}</div><div>Dated: {{date doc.date}}</div></div>
-  </div>
-  <table class="items" style="margin-top:16px; border:1px solid #111;">
-    <thead><tr style="border-bottom:1px solid #111;"><th style="border-right:1px solid #111;">Sr.</th><th style="border-right:1px solid #111;">Particulars</th><th style="border-right:1px solid #111;">HSN</th><th class="num" style="border-right:1px solid #111;">Qty</th><th class="num" style="border-right:1px solid #111;">Rate</th><th class="num">Amount</th></tr></thead>
-    <tbody>{{#each doc.items}}<tr style="border-bottom:1px solid #d1d5db;"><td style="border-right:1px solid #111;">{{inc @index}}</td><td style="border-right:1px solid #111;">{{this.name}}</td><td style="border-right:1px solid #111;">{{this.hsn}}</td><td class="num" style="border-right:1px solid #111;">{{this.qty}}</td><td class="num" style="border-right:1px solid #111;">{{money this.price}}</td><td class="num">{{money this.amount}}</td></tr>{{/each}}</tbody>
+
+  <table class="items-table">
+    <thead>
+      <tr style="background: #374151; color: #ffffff;">
+        <th class="center" style="width: 36px;">#</th>
+        <th>Particulars / Item Description</th>
+        <th class="center" style="width: 80px;">HSN</th>
+        <th class="num" style="width: 60px;">Qty</th>
+        <th class="num" style="width: 90px;">Rate</th>
+        <th class="num" style="width: 75px;">Disc</th>
+        <th class="num" style="width: 65px;">Tax</th>
+        <th class="num" style="width: 105px;">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each doc.items}}
+      <tr>
+        <td class="center muted">{{inc @index}}</td>
+        <td><strong>{{this.name}}</strong></td>
+        <td class="center muted">{{#if this.hsn}}{{this.hsn}}{{else}}-{{/if}}</td>
+        <td class="num bold">{{this.qty}}</td>
+        <td class="num">{{money this.price}}</td>
+        <td class="num muted">{{money this.discount}}</td>
+        <td class="num muted">{{this.taxRate}}%</td>
+        <td class="num bold" style="color: #111827;">{{money this.amount}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
   </table>
-  <div class="flex" style="margin-top:12px;">
-    <div style="flex:1;"><strong>Rupees:</strong> <em>{{words doc.grandTotal}}</em></div>
-    <div style="width:240px;"><table class="totals">
-      <tr><td>Subtotal</td><td class="right">{{money doc.subtotal}}</td></tr>
-      {{#if doc.taxTotal}}<tr><td>Tax</td><td class="right">{{money doc.taxTotal}}</td></tr>{{/if}}
-      <tr class="grand" style="border-top:1px solid #111;"><td>Total</td><td class="right">{{money doc.grandTotal company.currencySymbol}}</td></tr>
-    </table></div>
+
+  <div class="grid-2" style="margin-top: 20px; align-items: flex-start;">
+    <div style="flex: 1.1; display: flex; flex-direction: column; gap: 12px;">
+      <div class="card">
+        <div class="card-title">Amount in Words</div>
+        <div style="font-weight: 600;">{{words doc.grandTotal}}</div>
+      </div>
+      {{#if upiQr}}
+      <div class="card" style="display: flex; align-items: center; gap: 12px;">
+        <img src="{{upiQr}}" alt="UPI QR" style="width: 80px; height: 80px;" />
+        <div>
+          <div class="card-title">UPI QR Code</div>
+          <div style="font-weight: 700;">{{company.upiId}}</div>
+        </div>
+      </div>
+      {{/if}}
+    </div>
+    <div style="flex: 0.9;" class="card">
+      <div class="card-title" style="border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-bottom: 8px;">Totals</div>
+      <table class="totals-table">
+        <tr><td class="muted">Subtotal</td><td class="right bold">{{money doc.subtotal company.currencySymbol}}</td></tr>
+        {{#if doc.docDiscount}}<tr><td class="muted">Discount</td><td class="right">-{{money doc.docDiscount company.currencySymbol}}</td></tr>{{/if}}
+        {{#if doc.cgst}}<tr><td class="muted">CGST</td><td class="right">{{money doc.cgst company.currencySymbol}}</td></tr><tr><td class="muted">SGST</td><td class="right">{{money doc.sgst company.currencySymbol}}</td></tr>{{/if}}
+        {{#if doc.igst}}<tr><td class="muted">IGST</td><td class="right">{{money doc.igst company.currencySymbol}}</td></tr>{{/if}}
+        {{#if doc.roundOff}}<tr><td class="muted">Round Off</td><td class="right">{{money doc.roundOff company.currencySymbol}}</td></tr>{{/if}}
+        <tr class="grand-row" style="background: #F3F4F6;"><td style="color: #111827;">Grand Total</td><td class="right" style="color: #111827;">{{money doc.grandTotal company.currencySymbol}}</td></tr>
+      </table>
+    </div>
   </div>
-  <div class="flex" style="margin-top:40px;">
-    <div class="muted">E. &amp; O.E.</div>
-    <div class="right"><div style="border-top:1px solid #111; display:inline-block; padding-top:4px;">for {{company.name}}</div></div>
+
+  <div class="signature-grid">
+    <div class="signature-box"><div class="signature-line">Customer Signature</div></div>
+    <div class="signature-box"><div class="signature-line">Prepared By</div></div>
+    <div class="signature-box">
+      {{#if company.signature}}<img src="{{company.signature}}" alt="Sign" style="max-height: 48px;" /><br/>{{/if}}
+      <div class="signature-line">Authorized Signatory</div>
+      <div class="muted" style="font-size: 10.5px;">for {{company.name}}</div>
+    </div>
   </div>
 </div>

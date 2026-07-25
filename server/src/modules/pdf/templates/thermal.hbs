@@ -1,34 +1,72 @@
-<div class="doc" style="padding:4px; font-size:11px; font-family:'Courier New', monospace;">
-  <div style="text-align:center;">
-    <div style="font-size:14px; font-weight:800;">{{company.name}}</div>
-    {{#if company.address.line1}}<div>{{company.address.line1}}</div>{{/if}}
-    {{#if company.phone}}<div>Ph: {{company.phone}}</div>{{/if}}
+<div class="thermal-doc" style="font-family: 'Courier New', Courier, monospace; font-size: 11px; padding: 8px; width: 100%; color: #000;">
+  <div style="text-align: center; border-bottom: 1px dashed #000; padding-bottom: 6px; margin-bottom: 6px;">
+    <div style="font-size: 14px; font-weight: 800; text-transform: uppercase;">{{company.name}}</div>
+    <div>{{company.address.line1}}</div>
+    <div>{{company.address.city}} {{company.address.pincode}}</div>
     {{#if company.gstin}}<div>GSTIN: {{company.gstin}}</div>{{/if}}
+    <div>Ph: {{company.phone}}</div>
   </div>
-  <div style="border-top:1px dashed #000; margin:6px 0;"></div>
-  <div><strong>{{upper title}}</strong> #{{doc.number}}</div>
-  <div>Date: {{date doc.date}}</div>
-  {{#if doc.partyName}}<div>To: {{doc.partyName}}</div>{{/if}}
-  <div style="border-top:1px dashed #000; margin:6px 0;"></div>
-  <table style="width:100%;">
-    {{#each doc.items}}
-    <tr><td colspan="2">{{this.name}}</td></tr>
-    <tr>
-      <td>{{this.qty}} x {{money this.price}}</td>
-      <td class="right" style="text-align:right;">{{money this.amount}}</td>
+
+  <div style="text-align: center; font-weight: 800; font-size: 12px; margin-bottom: 4px;">
+    *** {{upper title}} ***
+  </div>
+
+  <div style="display: flex; justify-content: space-between;">
+    <span>No: {{doc.number}}</span>
+    <span>Date: {{date doc.date}}</span>
+  </div>
+  {{#if doc.partyName}}
+  <div>Customer: {{doc.partyName}}</div>
+  {{/if}}
+
+  <div style="border-bottom: 1px dashed #000; margin: 6px 0;"></div>
+
+  <!-- Thermal Items Table -->
+  <table style="width: 100%; border-collapse: collapse; font-size: 10.5px;">
+    <thead>
+      <tr style="border-bottom: 1px solid #000; text-align: left;">
+        <th>Item</th>
+        <th style="text-align: right;">Qty</th>
+        <th style="text-align: right;">Rate</th>
+        <th style="text-align: right;">Amt</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each doc.items}}
+      <tr>
+        <td>{{this.name}}</td>
+        <td style="text-align: right;">{{this.qty}}</td>
+        <td style="text-align: right;">{{money this.price}}</td>
+        <td style="text-align: right; font-weight: bold;">{{money this.amount}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <div style="border-bottom: 1px dashed #000; margin: 6px 0;"></div>
+
+  <!-- Totals -->
+  <table style="width: 100%; font-size: 11px;">
+    <tr><td>Subtotal</td><td style="text-align: right;">{{money doc.subtotal}}</td></tr>
+    {{#if doc.docDiscount}}<tr><td>Discount</td><td style="text-align: right;">-{{money doc.docDiscount}}</td></tr>{{/if}}
+    {{#if doc.cgst}}<tr><td>CGST</td><td style="text-align: right;">{{money doc.cgst}}</td></tr><tr><td>SGST</td><td style="text-align: right;">{{money doc.sgst}}</td></tr>{{/if}}
+    {{#if doc.igst}}<tr><td>IGST</td><td style="text-align: right;">{{money doc.igst}}</td></tr>{{/if}}
+    {{#if doc.roundOff}}<tr><td>Round Off</td><td style="text-align: right;">{{money doc.roundOff}}</td></tr>{{/if}}
+    <tr style="font-weight: 800; font-size: 13px; border-top: 1px solid #000;">
+      <td>TOTAL</td>
+      <td style="text-align: right;">{{money doc.grandTotal company.currencySymbol}}</td>
     </tr>
-    {{/each}}
   </table>
-  <div style="border-top:1px dashed #000; margin:6px 0;"></div>
-  <table style="width:100%;">
-    <tr><td>Subtotal</td><td style="text-align:right;">{{money doc.subtotal}}</td></tr>
-    {{#if doc.taxTotal}}<tr><td>Tax</td><td style="text-align:right;">{{money doc.taxTotal}}</td></tr>{{/if}}
-    {{#if doc.roundOff}}<tr><td>Round Off</td><td style="text-align:right;">{{money doc.roundOff}}</td></tr>{{/if}}
-    <tr style="font-weight:800; font-size:13px;"><td>TOTAL</td><td style="text-align:right;">{{money doc.grandTotal company.currencySymbol}}</td></tr>
-    {{#if doc.paidAmount}}<tr><td>Paid</td><td style="text-align:right;">{{money doc.paidAmount}}</td></tr>
-    <tr><td>Balance</td><td style="text-align:right;">{{money doc.balanceAmount}}</td></tr>{{/if}}
-  </table>
-  <div style="border-top:1px dashed #000; margin:6px 0;"></div>
-  {{#if upiQr}}<div style="text-align:center;"><img src="{{upiQr}}" style="width:120px;height:120px;" /><div>Scan to Pay</div></div>{{/if}}
-  <div style="text-align:center; margin-top:8px;">*** Thank You ***</div>
+
+  {{#if upiQr}}
+  <div style="text-align: center; margin-top: 8px;">
+    <img src="{{upiQr}}" alt="UPI QR" style="width: 72px; height: 72px;" />
+    <div style="font-size: 9.5px;">Scan to Pay via UPI</div>
+  </div>
+  {{/if}}
+
+  <div style="text-align: center; margin-top: 10px; border-top: 1px dashed #000; padding-top: 6px;">
+    <div>Thank You! Visit Again!</div>
+    <div style="font-size: 9px; margin-top: 2px;">Powered by GST ERP Invoice System</div>
+  </div>
 </div>
