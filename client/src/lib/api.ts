@@ -1,6 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
-const RENDER_BACKEND_URL = 'https://srv-d9hlnn6q1p3s73a53qd0.onrender.com/api';
+const RENDER_BACKEND_URL = 'https://invoice-k6p9.onrender.com/api';
 
 const BASE_URL =
   import.meta.env.VITE_API_URL ??
