@@ -1,11 +1,24 @@
-const MOCK_AUDIT_LOGS = [
-  { id: 'LOG-8801', action: 'Company Subscription Updated', user: 'Platform Owner', target: 'Sharma Electronics', ip: '127.0.0.1', date: '2026-07-24 15:40:12' },
-  { id: 'LOG-8802', action: 'Company Impersonation Session', user: 'Platform Owner', target: 'Patel Traders', ip: '127.0.0.1', date: '2026-07-24 15:35:00' },
-  { id: 'LOG-8803', action: 'Onboarding Completed', user: 'Rajesh Kumar', target: 'PaperBolt Enterprises', ip: '192.168.1.4', date: '2026-07-24 14:10:22' },
-  { id: 'LOG-8804', action: 'Platform Admin Login', user: 'Super Admin', target: 'Platform Control Panel', ip: '127.0.0.1', date: '2026-07-24 10:00:00' },
-];
+import { useQuery } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react';
+import { api } from '@/lib/api';
+
+interface AuditLogItem {
+  id: string;
+  action: string;
+  user: string;
+  target: string;
+  ip: string;
+  date: string;
+}
 
 export default function PlatformAuditLogs() {
+  const { data: logs, isLoading } = useQuery<AuditLogItem[]>({
+    queryKey: ['admin', 'audit-logs'],
+    queryFn: async () => (await api.get('/admin/audit-logs')).data,
+  });
+
+  const auditLogs = logs ?? [];
+
   return (
     <div className="space-y-6">
       <div>
@@ -13,7 +26,7 @@ export default function PlatformAuditLogs() {
           Platform Activity & Audit Logs
         </h1>
         <p className="mt-1 text-sm text-slate-500">
-          Security audit stream for all administrative actions, company impersonations, and access logs.
+          Live activity audit stream generated from real database events, user registrations, and company operations.
         </p>
       </div>
 
@@ -30,16 +43,31 @@ export default function PlatformAuditLogs() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-            {MOCK_AUDIT_LOGS.map((log) => (
-              <tr key={log.id} className="transition hover:bg-slate-50/60 dark:hover:bg-slate-800/30">
-                <td className="px-6 py-4 font-mono font-bold text-slate-400">{log.id}</td>
-                <td className="px-6 py-4 font-bold text-slate-900 dark:text-slate-100">{log.action}</td>
-                <td className="px-6 py-4 text-xs font-semibold text-brand-600">{log.user}</td>
-                <td className="px-6 py-4 text-xs font-semibold text-slate-600 dark:text-slate-300">{log.target}</td>
-                <td className="px-6 py-4 font-mono text-xs text-slate-400">{log.ip}</td>
-                <td className="px-6 py-4 text-xs text-slate-400">{log.date}</td>
+            {isLoading ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                  <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2 text-brand-600" />
+                  Loading real system audit logs...
+                </td>
               </tr>
-            ))}
+            ) : auditLogs.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                  No activity logs recorded yet.
+                </td>
+              </tr>
+            ) : (
+              auditLogs.map((log) => (
+                <tr key={log.id} className="transition hover:bg-slate-50/60 dark:hover:bg-slate-800/30">
+                  <td className="px-6 py-4 font-mono font-bold text-slate-400">{log.id}</td>
+                  <td className="px-6 py-4 font-bold text-slate-900 dark:text-slate-100">{log.action}</td>
+                  <td className="px-6 py-4 text-xs font-semibold text-brand-600">{log.user}</td>
+                  <td className="px-6 py-4 text-xs font-semibold text-slate-600 dark:text-slate-300">{log.target}</td>
+                  <td className="px-6 py-4 font-mono text-xs text-slate-400">{log.ip}</td>
+                  <td className="px-6 py-4 text-xs text-slate-400">{log.date}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

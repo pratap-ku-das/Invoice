@@ -45,6 +45,35 @@ export class AdminController {
     return this.adminService.updateCompanySubscription(id, dto);
   }
 
+  @Get('users')
+  getUsers(
+    @Query('search') search?: string,
+    @Query('role') role?: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return this.adminService.getUsers({ search, role, page, limit });
+  }
+
+  @Get('payments')
+  getPayments(
+    @Query('search') search?: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return this.adminService.getPayments({ search, page, limit });
+  }
+
+  @Get('audit-logs')
+  getAuditLogs() {
+    return this.adminService.getAuditLogs();
+  }
+
+  @Get('analytics')
+  getAnalytics() {
+    return this.adminService.getAnalytics();
+  }
+
   @Delete('companies/:id')
   deleteCompany(@Param('id') id: string) {
     return this.adminService.deleteCompany(id);

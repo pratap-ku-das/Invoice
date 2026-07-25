@@ -9,12 +9,15 @@ import { PlanId } from '../../common/constants/plans';
 import { env } from '../../config/env';
 import { Role } from '../../common/constants/roles';
 
+import { Payment, PaymentDocument } from '../payments/payment.schema';
+
 @Injectable()
 export class AdminService {
   constructor(
     @InjectModel(Company.name) private companyModel: Model<CompanyDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(BusinessDocument.name) private docModel: Model<BusinessDocumentDocument>,
+    @InjectModel(Payment.name) private paymentModel: Model<PaymentDocument>,
     private jwt: JwtService,
   ) {}
 
@@ -166,6 +169,156 @@ export class AdminService {
         role: Role.PLATFORM_OWNER,
         companyId: String(company._id),
       },
+    };
+  }
+
+  async getUsers(query: { search?: string; role?: string; page?: number; limit?: number }) {
+    const page = Math.max(1, Number(query.page) || 1);
+    const limit = Math.max(1, Math.min(100, Number(query.limit) || 20));
+    const skip = (page - 1) * limit;
+
+    const filter: Record<string, unknown> = {};
+    if (query.search) {
+      const regex = new RegExp(query.search, 'i');
+      filter.$or = [{ name: regex }, { email: regex }, { phone: regex }];
+    }
+    if (query.role) {
+      filter.role = query.role;
+    }
+
+    const [users, total] = await Promise.all([
+      this.userModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      this.userModel.countDocuments(filter),
+    ]);
+
+    const companyIds = users.map((u) => u.companyId).filter(Boolean);
+    const companies = await this.companyModel.find({ _id: { $in: companyIds } }).select('name').lean();
+    const companyMap = new Map(companies.map((c) => [String(c._id), c.name]));
+
+    const data = users.map((u) => ({
+      id: String(u._id),
+      _id: String(u._id),
+      name: u.name,
+      email: u.email,
+      phone: u.phone || 'N/A',
+      role: u.role,
+      companyId: u.companyId ? String(u.companyId) : null,
+      companyName: u.companyId ? companyMap.get(String(u.companyId)) || 'Unassigned' : 'Platform System',
+      createdAt: (u as any).createdAt ? new Date((u as any).createdAt).toLocaleString() : new Date().toLocaleString(),
+      isActive: u.isActive !== false,
+    }));
+
+    return { data, meta: { total, page, limit, pages: Math.ceil(total / limit) } };
+  }
+
+  async getPayments(query: { search?: string; page?: number; limit?: number }) {
+    const page = Math.max(1, Number(query.page) || 1);
+    const limit = Math.max(1, Math.min(100, Number(query.limit) || 20));
+    const skip = (page - 1) * limit;
+
+    const [payments, totalPayments, docsTotalRevenue] = await Promise.all([
+      this.paymentModel.find({ deletedAt: null }).sort({ date: -1 }).skip(skip).limit(limit).lean(),
+      this.paymentModel.countDocuments({ deletedAt: null }),
+      this.docModel.aggregate([
+        { $match: { deletedAt: null, docType: 'invoice' } },
+        { $group: { _id: null, total: { $sum: '$grandTotal' } } },
+      ]),
+    ]);
+
+    const companyIds = payments.map((p) => p.companyId).filter(Boolean);
+    const companies = await this.companyModel.find({ _id: { $in: companyIds } }).select('name').lean();
+    const companyMap = new Map(companies.map((c) => [String(c._id), c.name]));
+
+    const totalRevenue = (docsTotalRevenue[0]?.total || 0) + payments.reduce((acc, p) => acc + (p.amount || 0), 0);
+
+    const data = payments.map((p) => ({
+      id: String(p._id),
+      number: p.number,
+      companyName: companyMap.get(String(p.companyId)) || 'Company',
+      partyName: p.partyName || 'Customer',
+      amount: p.amount,
+      mode: (p.mode || 'cash').toUpperCase(),
+      type: p.type === 'in' ? 'Received' : 'Paid',
+      status: 'paid',
+      date: p.date ? new Date(p.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+    }));
+
+    return {
+      totalRevenue,
+      transactionsCount: totalPayments,
+      data,
+      meta: { total: totalPayments, page, limit, pages: Math.ceil(totalPayments / limit) },
+    };
+  }
+
+  async getAuditLogs() {
+    const [recentCompanies, recentUsers, recentDocs] = await Promise.all([
+      this.companyModel.find().sort({ createdAt: -1 }).limit(10).lean(),
+      this.userModel.find().sort({ createdAt: -1 }).limit(10).lean(),
+      this.docModel.find({ deletedAt: null }).sort({ createdAt: -1 }).limit(10).lean(),
+    ]);
+
+    const logs: Array<{ id: string; action: string; user: string; target: string; ip: string; date: string }> = [];
+
+    recentCompanies.forEach((c, idx) => {
+      logs.push({
+        id: `LOG-${9000 + idx}`,
+        action: 'Company Account Created',
+        user: c.email || 'Admin',
+        target: c.name,
+        ip: '127.0.0.1',
+        date: c.createdAt ? new Date(c.createdAt).toLocaleString() : new Date().toLocaleString(),
+      });
+    });
+
+    recentUsers.forEach((u, idx) => {
+      logs.push({
+        id: `LOG-${8000 + idx}`,
+        action: `User Registered (${u.role})`,
+        user: u.email,
+        target: u.name,
+        ip: '127.0.0.1',
+        date: (u as any).createdAt ? new Date((u as any).createdAt).toLocaleString() : new Date().toLocaleString(),
+      });
+    });
+
+    recentDocs.forEach((d, idx) => {
+      logs.push({
+        id: `LOG-${7000 + idx}`,
+        action: `Document Created (${d.docType.toUpperCase()}) #${d.number}`,
+        user: d.partyName || 'Staff User',
+        target: `Total ₹${d.grandTotal}`,
+        ip: '127.0.0.1',
+        date: (d as any).createdAt ? new Date((d as any).createdAt).toLocaleString() : new Date().toLocaleString(),
+      });
+    });
+
+    logs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return logs.slice(0, 30);
+  }
+
+  async getAnalytics() {
+    const [stats, docBreakdown, companyGrowth] = await Promise.all([
+      this.getStats(),
+      this.docModel.aggregate([
+        { $match: { deletedAt: null } },
+        { $group: { _id: '$docType', count: { $sum: 1 }, totalValue: { $sum: '$grandTotal' } } },
+      ]),
+      this.companyModel.aggregate([
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]),
+    ]);
+
+    return {
+      ...stats,
+      docBreakdown,
+      companyGrowth,
     };
   }
 }
