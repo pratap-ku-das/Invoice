@@ -216,38 +216,64 @@ export class AdminService {
     const limit = Math.max(1, Math.min(100, Number(query.limit) || 20));
     const skip = (page - 1) * limit;
 
-    const [payments, totalPayments, docsTotalRevenue] = await Promise.all([
-      this.paymentModel.find({ deletedAt: null }).sort({ date: -1 }).skip(skip).limit(limit).lean(),
-      this.paymentModel.countDocuments({ deletedAt: null }),
-      this.docModel.aggregate([
-        { $match: { deletedAt: null, docType: 'invoice' } },
-        { $group: { _id: null, total: { $sum: '$grandTotal' } } },
-      ]),
+    const filter: Record<string, unknown> = {};
+    if (query.search) {
+      const regex = new RegExp(query.search, 'i');
+      filter.$or = [{ name: regex }, { email: regex }, { phone: regex }];
+    }
+
+    const [companies, total] = await Promise.all([
+      this.companyModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      this.companyModel.countDocuments(filter),
     ]);
 
-    const companyIds = payments.map((p) => p.companyId).filter(Boolean);
-    const companies = await this.companyModel.find({ _id: { $in: companyIds } }).select('name').lean();
-    const companyMap = new Map(companies.map((c) => [String(c._id), c.name]));
+    const planPrices: Record<string, number> = {
+      free: 0,
+      basic: 499,
+      pro: 999,
+    };
 
-    const totalRevenue = (docsTotalRevenue[0]?.total || 0) + payments.reduce((acc, p) => acc + (p.amount || 0), 0);
+    // Calculate total MRR from active company subscriptions
+    const allCompanies = await this.companyModel.find().lean();
+    let totalSaasRevenue = 0;
+    let paidSubscriptionsCount = 0;
 
-    const data = payments.map((p) => ({
-      id: String(p._id),
-      number: p.number,
-      companyName: companyMap.get(String(p.companyId)) || 'Company',
-      partyName: p.partyName || 'Customer',
-      amount: p.amount,
-      mode: (p.mode || 'cash').toUpperCase(),
-      type: p.type === 'in' ? 'Received' : 'Paid',
-      status: 'paid',
-      date: p.date ? new Date(p.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-    }));
+    allCompanies.forEach((c) => {
+      const plan = c.subscription?.plan || 'free';
+      const price = planPrices[plan] || 0;
+      if (price > 0 && c.subscription?.status !== 'cancelled') {
+        totalSaasRevenue += price;
+        paidSubscriptionsCount++;
+      }
+    });
+
+    const data = companies.map((c) => {
+      const plan = c.subscription?.plan || 'free';
+      const price = planPrices[plan] || 0;
+      const status = c.subscription?.status || 'active';
+      const expiresAt = c.subscription?.expiresAt
+        ? new Date(c.subscription.expiresAt).toISOString().split('T')[0]
+        : 'Lifetime / Monthly';
+
+      return {
+        id: String(c._id),
+        companyName: c.name,
+        companyEmail: c.email || 'N/A',
+        plan: plan.toUpperCase() + ' PLAN',
+        planPrice: price,
+        amountFormatted: `₹${price}`,
+        status,
+        expiresAt,
+        date: (c as any).createdAt ? new Date((c as any).createdAt).toISOString().split('T')[0] : '2026-07-25',
+      };
+    });
 
     return {
-      totalRevenue,
-      transactionsCount: totalPayments,
+      totalSaasRevenue,
+      paidSubscriptionsCount,
+      totalCompaniesCount: allCompanies.length,
       data,
-      meta: { total: totalPayments, page, limit, pages: Math.ceil(totalPayments / limit) },
+      meta: { total, page, limit, pages: Math.ceil(total / limit) },
     };
   }
 
