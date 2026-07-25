@@ -135,7 +135,7 @@ export default function Dashboard() {
         title="Dashboard"
         subtitle="Your business at a glance"
         actions={
-          <Link to="/sales/invoices/new" className="btn-primary">
+          <Link to="/app/sales/invoices/new" className="btn-primary">
             <Plus className="h-4 w-4" /> New Invoice
           </Link>
         }
@@ -158,19 +158,19 @@ export default function Dashboard() {
             value={formatCurrency(summary?.pendingPayments)}
             icon={Clock}
             tone="amber"
-            to="/sales/invoices?status=unpaid"
+            to="/app/sales/invoices?status=unpaid"
           />
           <StatCard label="Outstanding (Receivable)" value={formatCurrency(summary?.outstandingReceivable)} icon={Wallet} tone="red" />
-          <StatCard label="Customers" value={formatNumber(summary?.totalCustomers)} icon={Users} to="/customers" />
-          <StatCard label="Suppliers" value={formatNumber(summary?.totalSuppliers)} icon={Factory} to="/suppliers" />
-          <StatCard label="Products" value={formatNumber(summary?.totalProducts)} icon={Package} to="/products" />
-          <StatCard label="Stock Value" value={formatCurrency(summary?.stockValue)} icon={Boxes} tone="purple" to="/stock" />
+          <StatCard label="Customers" value={formatNumber(summary?.totalCustomers)} icon={Users} to="/app/customers" />
+          <StatCard label="Suppliers" value={formatNumber(summary?.totalSuppliers)} icon={Factory} to="/app/suppliers" />
+          <StatCard label="Products" value={formatNumber(summary?.totalProducts)} icon={Package} to="/app/products" />
+          <StatCard label="Stock Value" value={formatCurrency(summary?.stockValue)} icon={Boxes} tone="purple" to="/app/stock" />
           <StatCard
             label="Low Stock Items"
             value={formatNumber(summary?.lowStockItems)}
             icon={AlertTriangle}
             tone={summary?.lowStockItems ? 'red' : 'green'}
-            to="/stock?lowStock=true"
+            to="/app/stock?lowStock=true"
           />
         </div>
       )}
@@ -259,7 +259,7 @@ export default function Dashboard() {
         <div className="card p-4">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="font-semibold">Recent Invoices</h3>
-            <Link to="/sales/invoices" className="text-sm text-brand-600 hover:underline">
+            <Link to="/app/sales/invoices" className="text-sm text-brand-600 hover:underline">
               View all
             </Link>
           </div>
@@ -267,7 +267,7 @@ export default function Dashboard() {
             {(recent?.invoices ?? []).map((inv: Record<string, unknown>) => (
               <Link
                 key={String(inv._id)}
-                to={`/sales/invoices/${inv._id}`}
+                to={`/app/sales/invoices/${inv._id}`}
                 className="flex items-center justify-between gap-2 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-800/50"
               >
                 <div className="min-w-0">
@@ -293,7 +293,7 @@ export default function Dashboard() {
         <div className="card p-4">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="font-semibold">Recent Payments</h3>
-            <Link to="/payments" className="text-sm text-brand-600 hover:underline">
+            <Link to="/app/payments" className="text-sm text-brand-600 hover:underline">
               View all
             </Link>
           </div>
