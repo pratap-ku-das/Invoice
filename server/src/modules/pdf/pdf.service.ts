@@ -22,9 +22,16 @@ export class PdfService implements OnModuleDestroy {
   private async getBrowser(): Promise<Browser> {
     if (this.browser?.connected) return this.browser;
     if (this.launching) return this.launching;
+
+    let execPath: string | undefined;
+    try {
+      execPath = puppeteer.executablePath();
+    } catch (e) {}
+
     this.launching = puppeteer
       .launch({
         headless: true,
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || execPath,
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
