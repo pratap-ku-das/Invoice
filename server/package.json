@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "nest start --watch",
     "dev:db": "node scripts/dev-db.js",
-    "postinstall": "npx puppeteer browsers install chrome",
-    "build": "npx puppeteer browsers install chrome && npx nest build",
+    "postinstall": "node scripts/install-chrome.js",
+    "build": "node scripts/install-chrome.js && npx nest build",
     "start": "node dist/main.js",
     "lint": "eslint \"src/**/*.ts\"",
     "test": "jest",

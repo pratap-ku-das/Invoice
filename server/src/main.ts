@@ -1,10 +1,14 @@
 import 'dotenv/config';
+import { join } from 'path';
+
+process.env.PUPPETEER_CACHE_DIR =
+  process.env.PUPPETEER_CACHE_DIR || join(process.cwd(), '.cache', 'puppeteer');
+
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { join } from 'path';
 import { AppModule } from './app.module';
 import { env } from './config/env';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
