@@ -48,23 +48,23 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
           id: d._id,
           label: `${d.number} · ${d.partyName ?? ''}`,
           sub: formatCurrency(d.grandTotal),
-          to: `/sales/invoices/${d._id}`,
+          to: `/app/sales/invoices/${d._id}`,
           group: 'Invoices',
           icon: FileText,
         });
       }
       for (const c of customers.data.data ?? []) {
-        hits.push({ id: c._id, label: c.name, sub: c.phone, to: `/customers/${c._id}`, group: 'Customers', icon: Users });
+        hits.push({ id: c._id, label: c.name, sub: c.phone, to: `/app/customers/${c._id}`, group: 'Customers', icon: Users });
       }
       for (const s of suppliers.data.data ?? []) {
-        hits.push({ id: s._id, label: s.name, sub: s.phone, to: `/suppliers/${s._id}`, group: 'Suppliers', icon: Factory });
+        hits.push({ id: s._id, label: s.name, sub: s.phone, to: `/app/suppliers/${s._id}`, group: 'Suppliers', icon: Factory });
       }
       for (const p of products.data.data ?? []) {
         hits.push({
           id: p._id,
           label: p.name,
           sub: p.sku,
-          to: `/products?edit=${p._id}`,
+          to: `/app/products?edit=${p._id}`,
           group: 'Products',
           icon: Package,
         });
@@ -74,7 +74,7 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
           id: p._id,
           label: `${p.number} · ${p.partyName ?? ''}`,
           sub: formatCurrency(p.amount),
-          to: '/payments',
+          to: '/app/payments',
           group: 'Payments',
           icon: Wallet,
         });

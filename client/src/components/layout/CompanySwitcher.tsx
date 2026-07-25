@@ -39,7 +39,7 @@ function CreateCompanyModal({ open, onClose }: { open: boolean; onClose: () => v
       toast.success(`${values.name} created`);
       reset();
       onClose();
-      navigate('/');
+      navigate('/app');
     } catch (e) {
       toast.error(apiError(e));
     } finally {
@@ -110,7 +110,7 @@ export function CompanySwitcher() {
     try {
       await switchCompany(c.companyId);
       toast.success(`Switched to ${c.name}`);
-      navigate('/');
+      navigate('/app');
     } catch (e) {
       toast.error(apiError(e));
     } finally {

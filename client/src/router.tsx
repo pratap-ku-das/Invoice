@@ -187,5 +187,12 @@ export const router = createBrowserRouter([
     children: appChildren,
   },
 
+  // Aliases for top-level paths
+  { path: '/settings', element: <Navigate to="/app/settings" replace /> },
+  { path: '/plan', element: <Navigate to="/app/plan" replace /> },
+  { path: '/notifications', element: <Navigate to="/app/notifications" replace /> },
+  { path: '/print-settings', element: <Navigate to="/app/print-settings" replace /> },
+  { path: '/dashboard', element: <Navigate to="/app/dashboard" replace /> },
+
   { path: '*', element: <Navigate to="/" replace /> },
 ]);

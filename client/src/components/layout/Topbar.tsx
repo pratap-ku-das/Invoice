@@ -73,10 +73,10 @@ function UserMenu() {
               <p className="truncate text-xs text-slate-400">{user?.email}</p>
             </div>
             <div className="mt-1 space-y-0.5">
-              <button className="menu-item" onClick={() => go('/settings')}>
+              <button className="menu-item" onClick={() => go('/app/settings')}>
                 <UserRound className="h-4 w-4" /> Profile & Settings
               </button>
-              <button className="menu-item" onClick={() => go('/plan')}>
+              <button className="menu-item" onClick={() => go('/app/plan')}>
                 <Gem className="h-4 w-4" /> Plan & Billing
               </button>
               <button className="menu-item" onClick={toggle}>
@@ -130,7 +130,7 @@ export function Topbar({
 
       <div className="ml-auto flex items-center gap-1">
         <button
-          onClick={() => navigate('/notifications')}
+          onClick={() => navigate('/app/notifications')}
           className="relative rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 dark:hover:bg-slate-800"
           aria-label="Notifications"
         >
