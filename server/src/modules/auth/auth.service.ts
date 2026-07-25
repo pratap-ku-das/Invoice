@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  OnModuleInit,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -15,12 +16,37 @@ import { JwtPayload } from './jwt.strategy';
 import { Role } from '../../common/constants/roles';
 
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleInit {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(Company.name) private companyModel: Model<CompanyDocument>,
     private jwt: JwtService,
   ) {}
+
+  async onModuleInit() {
+    try {
+      const adminEmail = 'admin@paperbolt.com';
+      const existing = await this.userModel.findOne({ email: adminEmail });
+      if (!existing) {
+        let company = await this.companyModel.findOne({ email: adminEmail });
+        if (!company) {
+          company = await this.companyModel.create({
+            name: 'PaperBolt Platform Administration',
+            email: adminEmail,
+          });
+        }
+        await this.userModel.create({
+          name: 'System Super Admin',
+          email: adminEmail,
+          passwordHash: await argon2.hash('Admin@123'),
+          role: Role.SUPER_ADMIN,
+          companyId: company._id,
+        });
+      }
+    } catch (e) {
+      // Ignore initial seed error
+    }
+  }
 
   async register(dto: RegisterDto) {
     const existing = await this.userModel.findOne({ email: dto.email.toLowerCase() });
