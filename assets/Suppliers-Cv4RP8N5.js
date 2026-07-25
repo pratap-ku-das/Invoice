@@ -1,1 +1,0 @@
-import{j as r}from"./index-DHYckK3Z.js";import{P as t}from"./PartyList-CbU9r-l7.js";import"./PageHeader-Pj2T082G.js";import"./DataTable-BXi8irKH.js";import"./chevron-left-Dlkwd2ox.js";import"./useCrud-8wkPHC7_.js";import"./useMutation-s3asRchP.js";import"./pencil-BWHPfNSi.js";import"./trash-2-BKMeILec.js";function n(){return r.jsx(t,{partyType:"supplier"})}export{n as default};
