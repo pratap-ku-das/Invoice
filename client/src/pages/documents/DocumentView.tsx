@@ -17,7 +17,7 @@ import {
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge, Button, Select } from '@/components/ui/primitives';
 import { Skeleton, Modal } from '@/components/ui/feedback';
-import { api, apiError } from '@/lib/api';
+import { api, apiError, tokenStore } from '@/lib/api';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { DOC_TYPES } from '@/config/nav';
 import type { BusinessDoc } from '@/types';
@@ -50,13 +50,19 @@ export default function DocumentView({ docType }: { docType: string }) {
     enabled: !!id,
   });
 
-  const previewUrl = `/api/pdf/${docType}/${id}/preview?${new URLSearchParams({
+  const apiBase = api.defaults.baseURL ?? '/api';
+  const token = tokenStore.access;
+  const targetId = doc?._id ?? id;
+
+  const previewUrl = `${apiBase}/pdf/${docType}/${targetId}/preview?${new URLSearchParams({
     ...(theme ? { theme } : {}),
     paperSize: paper,
+    ...(token ? { token } : {}),
   })}`;
-  const pdfUrl = `/api/pdf/${docType}/${id}/pdf?${new URLSearchParams({
+  const pdfUrl = `${apiBase}/pdf/${docType}/${targetId}/pdf?${new URLSearchParams({
     ...(theme ? { theme } : {}),
     paperSize: paper,
+    ...(token ? { token } : {}),
   })}`;
 
   const act = async (fn: () => Promise<unknown>, success: string) => {
@@ -121,11 +127,17 @@ export default function DocumentView({ docType }: { docType: string }) {
       {/* Action bar */}
       <div className="mb-4 flex flex-wrap items-center gap-2">
         {!doc.isLocked && doc.status !== 'cancelled' && (
-          <Button variant="outline" onClick={() => navigate(`${meta.route}/${id}/edit`)}>
+          <Button variant="outline" onClick={() => navigate(`${meta.route}/${targetId}/edit`)}>
             <Pencil className="h-4 w-4" /> Edit
           </Button>
         )}
-        <Button variant="outline" onClick={() => window.open(previewUrl, '_blank')?.print()}>
+        <Button
+          variant="outline"
+          onClick={() => {
+            const w = window.open(previewUrl, '_blank');
+            if (w) w.onload = () => w.print();
+          }}
+        >
           <Printer className="h-4 w-4" /> Print
         </Button>
         <a href={pdfUrl} target="_blank" rel="noreferrer" className="btn-outline">
