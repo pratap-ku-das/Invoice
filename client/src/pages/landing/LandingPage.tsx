@@ -608,6 +608,56 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Meet the Founder Section */}
+      <section className="py-20 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="rounded-3xl border border-brand-500/20 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-8 md:p-12 text-white shadow-2xl relative overflow-hidden">
+            <div className="absolute right-0 top-0 h-96 w-96 rounded-full bg-brand-500/10 blur-3xl pointer-events-none" />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+              <div className="lg:col-span-8 space-y-4">
+                <div className="inline-flex items-center gap-2 rounded-full border border-brand-400/30 bg-brand-500/20 px-3 py-1 text-xs font-bold text-brand-300 backdrop-blur-md">
+                  <Sparkles className="h-3.5 w-3.5" /> Founder & Lead Developer
+                </div>
+                <h2 className="text-3xl md:text-4xl font-black tracking-tight text-white">
+                  Created & Developed by <span className="bg-gradient-to-r from-brand-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">Pratap Kumar Das</span>
+                </h2>
+                <p className="text-slate-300 text-sm md:text-base leading-relaxed max-w-2xl">
+                  <strong>PaperBolt Monogram</strong> is an enterprise multi-tenant GST billing, stock management, and invoice suite built by <strong>Pratap Kumar Das</strong> from Bhubaneswar, Odisha, India. Designed to empower SMEs, distributors, and service providers with high-speed automated invoicing, thermal receipt generation, and real-time inventory management.
+                </p>
+                <div className="flex flex-wrap items-center gap-4 pt-2">
+                  <a
+                    href="https://github.com/pratap-ku-das"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 px-4 py-2 text-xs font-bold text-white transition backdrop-blur-md"
+                  >
+                    <BookOpen className="h-4 w-4 text-brand-400" />
+                    GitHub: @pratap-ku-das
+                  </a>
+                  <div className="text-xs font-semibold text-slate-400">
+                    📍 Bhubaneswar, Odisha, India
+                  </div>
+                </div>
+              </div>
+              <div className="lg:col-span-4 flex justify-center">
+                <div className="rounded-2xl border border-white/20 bg-slate-950/80 p-6 backdrop-blur-xl shadow-2xl text-center space-y-3 w-full max-w-xs">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-brand-500 to-indigo-600 font-black text-2xl text-white shadow-glow mx-auto">
+                    PKD
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-base text-white">Pratap Kumar Das</h3>
+                    <p className="text-xs font-semibold text-brand-400">Founder & Lead Software Engineer</p>
+                  </div>
+                  <p className="text-[11px] text-slate-400 italic">
+                    "Building fast, reliable, and beautiful billing tools for modern businesses across India."
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Testimonials */}
       <section className="py-24 border-t border-slate-200 dark:border-slate-800">
         <div className="mx-auto max-w-7xl px-6">
@@ -667,7 +717,7 @@ export default function LandingPage() {
           </div>
 
           <p className="text-xs text-slate-400">
-            © {new Date().getFullYear()} Invoice Management System. All rights reserved.
+            Created with ❤️ by <strong className="text-slate-700 dark:text-slate-200">Pratap Kumar Das</strong> | PaperBolt Monogram © {new Date().getFullYear()}
           </p>
         </div>
       </footer>
