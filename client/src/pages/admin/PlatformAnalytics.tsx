@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { TrendingUp, HardDrive, FileText, Building2, Loader2 } from 'lucide-react';
+import { FileText, Building2, Loader2 } from 'lucide-react';
 import { api } from '@/lib/api';
 
 export default function PlatformAnalytics() {

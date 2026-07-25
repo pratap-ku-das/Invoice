@@ -16,7 +16,7 @@ interface PaymentItem {
 }
 
 export default function PlatformPayments() {
-  const { data: paymentsData, isLoading, refetch } = useQuery({
+  const { data: paymentsData, isLoading } = useQuery({
     queryKey: ['admin', 'payments'],
     queryFn: async () => (await api.get('/admin/payments')).data,
   });

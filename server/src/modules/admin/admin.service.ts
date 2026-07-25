@@ -200,7 +200,7 @@ export class AdminService {
       _id: String(u._id),
       name: u.name,
       email: u.email,
-      phone: u.phone || 'N/A',
+      phone: (u as any).phone || 'N/A',
       role: u.role,
       companyId: u.companyId ? String(u.companyId) : null,
       companyName: u.companyId ? companyMap.get(String(u.companyId)) || 'Unassigned' : 'Platform System',
@@ -267,7 +267,7 @@ export class AdminService {
         user: c.email || 'Admin',
         target: c.name,
         ip: '127.0.0.1',
-        date: c.createdAt ? new Date(c.createdAt).toLocaleString() : new Date().toLocaleString(),
+        date: (c as any).createdAt ? new Date((c as any).createdAt).toLocaleString() : new Date().toLocaleString(),
       });
     });
 
