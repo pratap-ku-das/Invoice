@@ -17,7 +17,7 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
   app.setGlobalPrefix('api');
   app.enableCors({
-    origin: [env.CLIENT_ORIGIN, 'https://dev.pratap.website', 'http://localhost:5173'],
+    origin: [env.CLIENT_ORIGIN, 'https://dev.pratap.website', 'http://localhost:5173', 'https://srv-d9hlnn6q1p3s73a53qd0.onrender.com'],
     credentials: true,
   });
   app.useGlobalPipes(

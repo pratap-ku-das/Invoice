@@ -1,6 +1,14 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
+const RENDER_BACKEND_URL = 'https://srv-d9hlnn6q1p3s73a53qd0.onrender.com/api';
+
+const BASE_URL =
+  import.meta.env.VITE_API_URL ??
+  (typeof window !== 'undefined' &&
+  window.location.hostname !== 'localhost' &&
+  window.location.hostname !== '127.0.0.1'
+    ? RENDER_BACKEND_URL
+    : '/api');
 
 export const api = axios.create({ baseURL: BASE_URL });
 
