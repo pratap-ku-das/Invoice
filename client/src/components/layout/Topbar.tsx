@@ -10,6 +10,7 @@ import {
   UserRound,
   Gem,
   ChevronDown,
+  Building2,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '@/store/auth';
@@ -78,6 +79,9 @@ function UserMenu() {
               </button>
               <button className="menu-item" onClick={() => go('/app/plan')}>
                 <Gem className="h-4 w-4" /> Plan & Billing
+              </button>
+              <button className="menu-item font-semibold text-brand-600 dark:text-brand-400" onClick={() => go('/admin/companies')}>
+                <Building2 className="h-4 w-4 text-brand-600 dark:text-brand-400" /> Multi-Company Panel
               </button>
               <button className="menu-item" onClick={toggle}>
                 {mode === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
