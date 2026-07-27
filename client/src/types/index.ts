@@ -36,6 +36,15 @@ export interface PlanInfo {
   expiresAt?: string;
   limits: PlanLimits;
   usage: { invoicesThisMonth: number; users: number; companiesOwned: number };
+  paymentsHistory?: Array<{
+    id: string;
+    orderId: string;
+    paymentId: string;
+    amount: number;
+    plan: string;
+    status: string;
+    date: string;
+  }>;
 }
 
 export interface Paginated<T> {

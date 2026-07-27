@@ -22,6 +22,7 @@ import { PdfModule } from './modules/pdf/pdf.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { SubscriptionModule } from './modules/subscription/subscription.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { AdminModule } from './modules/admin/admin.module';
     AuditModule,
     NotificationsModule,
     AdminModule,
+    SubscriptionModule,
   ],
   providers: [
     // JWT auth is global; individual routes opt out with @Public()

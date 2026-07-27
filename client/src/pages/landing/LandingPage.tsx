@@ -616,13 +616,13 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
               <div className="lg:col-span-8 space-y-4">
                 <div className="inline-flex items-center gap-2 rounded-full border border-brand-400/30 bg-brand-500/20 px-3 py-1 text-xs font-bold text-brand-300 backdrop-blur-md">
-                  <Sparkles className="h-3.5 w-3.5" /> Founder & Lead Developer
+                  <Sparkles className="h-3.5 w-3.5" /> Founder @ BalajiOne Enterprises & Lead Developer
                 </div>
                 <h2 className="text-3xl md:text-4xl font-black tracking-tight text-white">
                   Created & Developed by <span className="bg-gradient-to-r from-brand-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">Pratap Kumar Das</span>
                 </h2>
                 <p className="text-slate-300 text-sm md:text-base leading-relaxed max-w-2xl">
-                  <strong>PaperBolt Monogram</strong> is an enterprise multi-tenant GST billing, stock management, and invoice suite built by <strong>Pratap Kumar Das</strong> from Bhubaneswar, Odisha, India. Designed to empower SMEs, distributors, and service providers with high-speed automated invoicing, thermal receipt generation, and real-time inventory management.
+                  <strong>BalajiOne Enterprises</strong> presents an enterprise multi-tenant GST billing, stock management, and invoice suite built by <strong>Pratap Kumar Das @ founder of BalajiOne Enterprises</strong> from Bhubaneswar, Odisha, India. Designed to empower SMEs, distributors, and service providers with high-speed automated invoicing, thermal receipt generation, and real-time inventory management.
                 </p>
                 <div className="flex flex-wrap items-center gap-4 pt-2">
                   <a
@@ -644,13 +644,13 @@ export default function LandingPage() {
                   <div className="relative mx-auto h-28 w-28 overflow-hidden rounded-2xl border-2 border-brand-400/40 shadow-glow">
                     <img
                       src="/pratap_das.png"
-                      alt="Pratap Kumar Das - Founder of PaperBolt Monogram"
+                      alt="Pratap Kumar Das - Founder of BalajiOne Enterprises"
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   </div>
                   <div>
                     <h3 className="font-extrabold text-base text-white">Pratap Kumar Das</h3>
-                    <p className="text-xs font-semibold text-brand-400">Founder & Lead Software Engineer</p>
+                    <p className="text-xs font-semibold text-brand-400">Founder @ BalajiOne Enterprises</p>
                   </div>
                   <p className="text-[11px] text-slate-400 italic">
                     "Building fast, reliable, and beautiful billing tools for modern businesses across India."
@@ -705,10 +705,10 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-6 flex flex-col items-center justify-between gap-6 sm:flex-row">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-white shadow-xs border border-slate-200 dark:border-slate-800">
-              <img src="/logos/app_logo.jpg" alt="PaperBolt Monogram Logo" className="h-full w-full object-contain p-0.5" />
+              <img src="/logos/app_logo.jpg" alt="BalajiOne Enterprises Logo" className="h-full w-full object-contain p-0.5" />
             </div>
             <span className="text-lg font-extrabold bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">
-              PaperBolt Monogram
+              BalajiOne Enterprises
             </span>
           </div>
 
@@ -720,8 +720,8 @@ export default function LandingPage() {
             </a>
           </div>
 
-          <p className="text-xs text-slate-400">
-            Created with ❤️ by <strong className="text-slate-700 dark:text-slate-200">Pratap Kumar Das</strong> | PaperBolt Monogram © {new Date().getFullYear()}
+          <p className="text-xs text-slate-400 text-center sm:text-right">
+            <strong className="text-slate-700 dark:text-slate-200">BalajiOne Enterprises</strong> | Developed by <strong className="text-slate-700 dark:text-slate-200">Pratap Kumar Das @ founder of BalajiOne Enterprises</strong> © {new Date().getFullYear()}
           </p>
         </div>
       </footer>
