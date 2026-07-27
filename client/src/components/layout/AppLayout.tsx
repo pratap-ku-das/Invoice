@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { GlobalSearch } from './GlobalSearch';
+import { MobileBottomNav } from './MobileBottomNav';
 import { PWAInstallBanner } from '@/components/pwa/PWAInstallBanner';
 import { useAuth } from '@/store/auth';
 import { api } from '@/lib/api';
@@ -58,13 +59,14 @@ export function AppLayout() {
           onSearch={() => setSearchOpen(true)}
           notifCount={notif?.count ?? 0}
         />
-        <main className="min-w-0 flex-1 overflow-y-auto">
+        <main className="min-w-0 flex-1 overflow-y-auto pb-20 lg:pb-0">
           <Suspense fallback={<PageFallback />}>
             <Outlet />
           </Suspense>
         </main>
       </div>
       <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <MobileBottomNav />
       <PWAInstallBanner />
     </div>
   );
