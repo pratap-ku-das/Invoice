@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://dev.pratap.website/sitemap.xml
+Sitemap: https://invoice.balajione.dev/sitemap.xml
