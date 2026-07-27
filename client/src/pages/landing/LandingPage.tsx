@@ -23,6 +23,7 @@ import {
   Sun,
 } from 'lucide-react';
 import { useAuth } from '@/store/auth';
+import { PWAInstallBanner } from '@/components/pwa/PWAInstallBanner';
 
 const FEATURES = [
   {
@@ -725,6 +726,7 @@ export default function LandingPage() {
           </p>
         </div>
       </footer>
+      <PWAInstallBanner />
     </div>
   );
 }

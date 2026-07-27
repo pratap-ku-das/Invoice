@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { GlobalSearch } from './GlobalSearch';
+import { PWAInstallBanner } from '@/components/pwa/PWAInstallBanner';
 import { useAuth } from '@/store/auth';
 import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/feedback';
@@ -64,6 +65,7 @@ export function AppLayout() {
         </main>
       </div>
       <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <PWAInstallBanner />
     </div>
   );
 }
