@@ -66,6 +66,9 @@ const PrintSettings = lazyRetry(() => import('@/pages/settings/PrintSettings'));
 const Plan = lazyRetry(() => import('@/pages/settings/Plan'));
 const Notifications = lazyRetry(() => import('@/pages/notifications/Notifications'));
 
+const PlatformNotifications = lazyRetry(() => import('@/pages/platform/PlatformNotifications').then(m => ({ default: m.PlatformNotifications })));
+const PlatformReleases = lazyRetry(() => import('@/pages/platform/PlatformReleases').then(m => ({ default: m.PlatformReleases })));
+
 function SuspenseWrapper({ children }: { children: React.ReactNode }) {
   return (
     <Suspense
@@ -150,6 +153,8 @@ const platformAdminChildren = [
   { path: 'system', element: <PlatformSystem /> },
   { path: 'audit-logs', element: <PlatformAuditLogs /> },
   { path: 'profile', element: <PlatformProfile /> },
+  { path: 'notifications', element: <PlatformNotifications /> },
+  { path: 'releases', element: <PlatformReleases /> },
 ];
 
 export const router = createBrowserRouter([

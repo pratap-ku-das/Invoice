@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Patch, Post, Body, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { NotificationsService } from './notifications.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -37,5 +37,15 @@ export class NotificationsController {
   @Patch('read-all')
   markAllRead(@CurrentUser('companyId') companyId: string) {
     return this.notifications.markAllRead(companyId);
+  }
+
+  @Post('send-broadcast')
+  sendBroadcast(@CurrentUser('userId') userId: string, @Body() dto: any) {
+    return this.notifications.sendBroadcastNotification(userId, dto);
+  }
+
+  @Get('admin/logs')
+  getAdminLogs() {
+    return this.notifications.getAdminNotificationLogs();
   }
 }

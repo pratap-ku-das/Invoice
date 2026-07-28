@@ -23,6 +23,7 @@ import {
   BarChart3,
   PieChart,
   Gem,
+  Bell,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -92,6 +93,13 @@ export const NAV: NavSection[] = [
       { label: 'Print Settings', to: '/app/print-settings', icon: Printer },
       { label: 'Settings', to: '/app/settings', icon: Settings },
       { label: 'Plan & Billing', to: '/app/plan', icon: Gem },
+    ],
+  },
+  {
+    section: 'Platform Admin',
+    items: [
+      { label: 'Push Notifications', to: '/platform/notifications', icon: Bell },
+      { label: 'App Releases', to: '/platform/releases', icon: Gem },
     ],
   },
 ];

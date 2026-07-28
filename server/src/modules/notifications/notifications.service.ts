@@ -2,8 +2,20 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Notification, NotificationDocument } from './notification.schema';
+import { NotificationLog, NotificationLogDocument } from './schemas/notification-log.schema';
 import { BusinessDocument } from '../documents/document.schema';
 import { Product } from '../catalog/product.schema';
+import { FcmService } from './fcm.service';
+import { DevicesService } from '../devices/devices.service';
+
+export interface SendBroadcastDto {
+  title: string;
+  body: string;
+  category?: 'transaction' | 'marketing' | 'reminder' | 'security' | 'update';
+  targetType: 'all' | 'company' | 'subscription' | 'role' | 'user';
+  targetId?: string;
+  actionUrl?: string;
+}
 
 @Injectable()
 export class NotificationsService {
@@ -11,8 +23,11 @@ export class NotificationsService {
 
   constructor(
     @InjectModel(Notification.name) private model: Model<NotificationDocument>,
+    @InjectModel(NotificationLog.name) private logModel: Model<NotificationLogDocument>,
     @InjectModel(BusinessDocument.name) private docModel: Model<BusinessDocument>,
     @InjectModel(Product.name) private productModel: Model<Product>,
+    private readonly fcmService: FcmService,
+    private readonly devicesService: DevicesService,
   ) {}
 
   async list(companyId: string, onlyUnread = false) {
@@ -45,6 +60,47 @@ export class NotificationsService {
     return { ok: true };
   }
 
+  /** Send Push Broadcast to FCM devices */
+  async sendBroadcastNotification(senderId: string, dto: SendBroadcastDto) {
+    const tokens = await this.devicesService.getTokensByTarget(dto.targetType, dto.targetId);
+
+    const fcmRes = await this.fcmService.sendMulticastPush({
+      tokens,
+      title: dto.title,
+      body: dto.body,
+      category: dto.category || 'transaction',
+      actionUrl: dto.actionUrl || '/app/dashboard',
+    });
+
+    const status =
+      fcmRes.failedCount === 0
+        ? 'sent'
+        : fcmRes.deliveredCount === 0
+          ? 'failed'
+          : 'partially_failed';
+
+    const log = await this.logModel.create({
+      title: dto.title,
+      body: dto.body,
+      category: dto.category || 'transaction',
+      targetType: dto.targetType,
+      targetId: dto.targetId || '',
+      actionUrl: dto.actionUrl || '',
+      sentCount: fcmRes.sentCount,
+      deliveredCount: fcmRes.deliveredCount,
+      failedCount: fcmRes.failedCount,
+      readCount: 0,
+      status,
+      sentBy: senderId,
+    });
+
+    return log;
+  }
+
+  async getAdminNotificationLogs() {
+    return this.logModel.find().sort({ createdAt: -1 }).limit(100).lean();
+  }
+
   /** Idempotent upsert keyed by dedupeKey so scans don't duplicate alerts */
   private async upsert(companyId: string, n: Partial<Notification> & { dedupeKey: string }) {
     await this.model.updateOne(
@@ -54,15 +110,10 @@ export class NotificationsService {
     );
   }
 
-  /**
-   * Recompute alert notifications for a company.
-   * Called on demand (client refresh) and could be scheduled via cron.
-   */
   async scan(companyId: string, now: Date = new Date()) {
     const cid = new Types.ObjectId(companyId);
     let created = 0;
 
-    // Overdue invoices (balance > 0, dueDate in the past, not cancelled/paid)
     const overdue = await this.docModel
       .find({
         companyId: cid,
@@ -88,7 +139,6 @@ export class NotificationsService {
       created++;
     }
 
-    // Low stock products
     const lowStock = await this.productModel
       .find({
         companyId: cid,
