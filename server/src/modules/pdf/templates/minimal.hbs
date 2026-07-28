@@ -1,9 +1,11 @@
 <div class="doc" style="padding: 24px 28px;">
   <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 24px;">
     <div>
+      {{#if company.logo}}<img src="{{company.logo}}" alt="logo" class="company-logo" style="margin-bottom: 6px;" />{{/if}}
       <div style="font-size: 22px; font-weight: 800; color: #111827;">{{company.name}}</div>
-      <div class="muted">{{company.address.line1}} {{company.address.city}}</div>
+      <div class="muted">{{formatAddress company.address}}</div>
       {{#if company.gstin}}<div class="muted">GSTIN: {{company.gstin}}</div>{{/if}}
+      <div class="muted">{{formatContactLine company.phone company.email}}</div>
     </div>
     <div class="right">
       <div style="font-size: 26px; font-weight: 800; color: #111827; letter-spacing: -0.02em;">{{upper title}}</div>

@@ -3,10 +3,9 @@
     <div style="flex: 1.2;">
       {{#if company.logo}}<img src="{{company.logo}}" alt="logo" class="company-logo" />{{/if}}
       <div class="company-name" style="color: #2563EB;">{{company.name}}</div>
-      <div class="muted">{{company.address.line1}} {{company.address.line2}}</div>
-      <div class="muted">{{company.address.city}} {{company.address.state}} {{company.address.pincode}}</div>
+      <div class="muted">{{formatAddress company.address}}</div>
       {{#if company.gstin}}<div class="muted">GSTIN: {{company.gstin}}</div>{{/if}}
-      <div class="muted">Ph: {{company.phone}} &bull; {{company.email}}</div>
+      <div class="muted">{{formatContactLine company.phone company.email}}</div>
     </div>
     <div class="right" style="flex: 0.8;">
       <div class="doc-title" style="color: #2563EB;">{{upper title}}</div>

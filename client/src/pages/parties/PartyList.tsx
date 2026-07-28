@@ -193,7 +193,7 @@ export function PartyList({ partyType }: { partyType: 'customer' | 'supplier' })
         pages={data?.totalPages}
         total={data?.total}
         onPageChange={setPage}
-        onRowClick={(p) => navigate(`/${resource}/${p._id}`)}
+        onRowClick={(p) => navigate(`/app/${resource}/${p._id}`)}
         empty={
           <EmptyState
             icon={Users}

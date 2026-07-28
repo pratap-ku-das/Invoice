@@ -228,7 +228,8 @@ export class AdminService {
     ]);
 
     const planPrices: Record<string, number> = {
-      free: 0,
+      starter: 299,
+      free: 299,
       basic: 499,
       pro: 999,
     };

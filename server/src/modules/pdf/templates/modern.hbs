@@ -1,93 +1,107 @@
-<div class="doc" style="padding: 24px 28px;">
-  <!-- Header Banner -->
-  <div class="header-banner">
-    <div style="flex: 1.2;">
-      {{#if company.logo}}
-        <img src="{{company.logo}}" alt="company logo" class="company-logo" />
-      {{/if}}
-      <div class="company-name">{{company.name}}</div>
-      <div class="muted">{{company.address.line1}} {{company.address.line2}}</div>
-      <div class="muted">{{company.address.city}}{{#if company.address.state}}, {{company.address.state}}{{/if}} {{company.address.pincode}}</div>
-      {{#if company.gstin}}<div class="muted" style="margin-top: 2px;"><strong>GSTIN:</strong> {{company.gstin}}</div>{{/if}}
-      <div class="muted">
-        {{#if company.phone}}<span>Ph: {{company.phone}}</span>{{/if}}
-        {{#if company.email}} &bull; <span>{{company.email}}</span>{{/if}}
-      </div>
+<div class="doc" style="padding: 20px 24px;">
+  <!-- Header Banner Block -->
+  <div style="border: 1.5px solid var(--primary); border-radius: 8px; overflow: hidden; margin-bottom: 16px;">
+    <!-- Title Strip -->
+    <div style="background: var(--primary); color: #ffffff; padding: 6px 14px; display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-size: 14px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">TAX INVOICE</span>
+      <span style="font-size: 11px; font-weight: 600; opacity: 0.9;">ORIGINAL FOR RECIPIENT</span>
     </div>
 
-    <div class="right" style="flex: 0.8;">
-      <div class="doc-title">{{upper title}}</div>
-      <div style="font-size: 16px; font-weight: 800; color: var(--text-main); margin-top: 4px;">#{{doc.number}}</div>
-      
-      <div style="margin-top: 10px;" class="card">
-        <div style="display: flex; justify-content: space-between; gap: 12px; margin-bottom: 3px;">
-          <span class="muted">Date:</span>
-          <span class="bold">{{date doc.date}}</span>
-        </div>
-        {{#if doc.dueDate}}
-        <div style="display: flex; justify-content: space-between; gap: 12px; margin-bottom: 3px;">
-          <span class="muted">Due Date:</span>
-          <span class="bold">{{date doc.dueDate}}</span>
-        </div>
+    <!-- Company + Invoice Metadata Block -->
+    <div style="padding: 12px 14px; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; background: #ffffff;">
+      <div style="flex: 1.2;">
+        {{#if company.logo}}
+          <img src="{{company.logo}}" alt="company logo" class="company-logo" style="max-height: 52px; margin-bottom: 6px;" />
         {{/if}}
-        {{#if doc.status}}
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; padding-top: 4px; border-top: 1px solid var(--border);">
-          <span class="muted">Status:</span>
-          <span class="badge badge-{{lower doc.status}}">{{upper doc.status}}</span>
-        </div>
+        <div class="company-name" style="font-size: 20px; font-weight: 800; color: var(--primary);">{{company.name}}</div>
+        <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">{{formatAddress company.address}}</div>
+        {{#if company.gstin}}
+          <div style="font-size: 11.5px; font-weight: 700; color: var(--text-main); margin-top: 4px;">
+            <span style="background: #EFF6FF; color: #1D4ED8; padding: 2px 6px; border-radius: 4px; border: 1px solid #BFDBFE;">GSTIN: {{company.gstin}}</span>
+          </div>
         {{/if}}
+        <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">{{formatContactLine company.phone company.email}}</div>
+      </div>
+
+      <div style="flex: 0.8; text-align: right;">
+        <table style="width: 100%; font-size: 11.5px; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 2px 0; color: var(--text-muted); text-align: right;">Invoice No:</td>
+            <td style="padding: 2px 0 2px 8px; font-weight: 800; font-size: 13px; color: var(--primary); text-align: right;">#{{doc.number}}</td>
+          </tr>
+          <tr>
+            <td style="padding: 2px 0; color: var(--text-muted); text-align: right;">Invoice Date:</td>
+            <td style="padding: 2px 0 2px 8px; font-weight: 700; text-align: right;">{{date doc.date}}</td>
+          </tr>
+          {{#if doc.dueDate}}
+          <tr>
+            <td style="padding: 2px 0; color: var(--text-muted); text-align: right;">Due Date:</td>
+            <td style="padding: 2px 0 2px 8px; font-weight: 700; text-align: right;">{{date doc.dueDate}}</td>
+          </tr>
+          {{/if}}
+          <tr>
+            <td style="padding: 2px 0; color: var(--text-muted); text-align: right;">Place of Supply:</td>
+            <td style="padding: 2px 0 2px 8px; font-weight: 700; text-align: right;">{{#if doc.placeOfSupply}}{{doc.placeOfSupply}}{{else}}{{company.address.state}}{{/if}}</td>
+          </tr>
+          {{#if doc.status}}
+          <tr>
+            <td style="padding: 4px 0 2px 0; color: var(--text-muted); text-align: right;">Status:</td>
+            <td style="padding: 4px 0 2px 8px; text-align: right;">
+              <span class="badge badge-{{lower doc.status}}">{{upper doc.status}}</span>
+            </td>
+          </tr>
+          {{/if}}
+        </table>
       </div>
     </div>
   </div>
 
-  <!-- Info Cards Grid -->
-  <div class="grid-2" style="margin-bottom: 20px;">
-    <!-- Bill To Card -->
-    <div class="card">
-      <div class="card-title">Bill To / Customer Details</div>
-      <div style="font-size: 14px; font-weight: 700; color: var(--text-main);">{{doc.partyName}}</div>
+  <!-- Customer Bill To & Optional Details (No Empty Boxes!) -->
+  <div class="grid-2" style="margin-bottom: 16px;">
+    <div class="card" style="border-left: 3px solid var(--primary); flex: 1;">
+      <div class="card-title" style="color: var(--primary); font-weight: 800;">Bill To (Customer Details)</div>
+      <div style="font-size: 14px; font-weight: 800; color: var(--text-main);">{{doc.partyName}}</div>
       {{#if doc.billingAddress.line1}}
-        <div class="muted">{{doc.billingAddress.line1}} {{doc.billingAddress.line2}}</div>
-        <div class="muted">{{doc.billingAddress.city}}{{#if doc.billingAddress.state}}, {{doc.billingAddress.state}}{{/if}} {{doc.billingAddress.pincode}}</div>
+        <div class="muted" style="font-size: 11.5px;">{{doc.billingAddress.line1}} {{doc.billingAddress.line2}}</div>
+        <div class="muted" style="font-size: 11.5px;">{{doc.billingAddress.city}}{{#if doc.billingAddress.state}}, {{doc.billingAddress.state}}{{/if}} {{doc.billingAddress.pincode}}</div>
       {{/if}}
-      {{#if doc.partyGstin}}<div style="margin-top: 4px;"><strong>GSTIN:</strong> {{doc.partyGstin}}</div>{{/if}}
-      {{#if doc.partyPhone}}<div class="muted">Phone: {{doc.partyPhone}}</div>{{/if}}
-      {{#if doc.partyEmail}}<div class="muted">Email: {{doc.partyEmail}}</div>{{/if}}
+      {{#if doc.partyGstin}}
+        <div style="margin-top: 4px; font-size: 11.5px;">
+          <strong>GSTIN / UIN:</strong> <span style="font-weight: 700; color: var(--primary);">{{doc.partyGstin}}</span>
+        </div>
+      {{/if}}
+      {{#if doc.partyPhone}}<div class="muted" style="font-size: 11.5px;">Phone: {{doc.partyPhone}}</div>{{/if}}
+      {{#if doc.partyEmail}}<div class="muted" style="font-size: 11.5px;">Email: {{doc.partyEmail}}</div>{{/if}}
     </div>
 
-    <!-- Ship To / Reference Card -->
-    {{#if doc.shippingAddress.line1}}
-    <div class="card">
-      <div class="card-title">Ship To / Dispatch Details</div>
-      <div style="font-weight: 600;">{{doc.partyName}}</div>
-      <div class="muted">{{doc.shippingAddress.line1}} {{doc.shippingAddress.line2}}</div>
-      <div class="muted">{{doc.shippingAddress.city}}{{#if doc.shippingAddress.state}}, {{doc.shippingAddress.state}}{{/if}} {{doc.shippingAddress.pincode}}</div>
-    </div>
-    {{else}}
-    <div class="card">
-      <div class="card-title">Document Reference &amp; Meta</div>
-      <div style="display: flex; flex-direction: column; gap: 4px;">
-        {{#if doc.placeOfSupply}}<div><span class="muted">Place of Supply:</span> <strong>{{doc.placeOfSupply}}</strong></div>{{/if}}
-        {{#if doc.poNumber}}<div><span class="muted">P.O. Number:</span> <strong>{{doc.poNumber}}</strong></div>{{/if}}
-        {{#if doc.vehicleNo}}<div><span class="muted">Vehicle No:</span> <strong>{{doc.vehicleNo}}</strong></div>{{/if}}
-        {{#if doc.eWayBillNo}}<div><span class="muted">e-Way Bill No:</span> <strong>{{doc.eWayBillNo}}</strong></div>{{/if}}
-      </div>
+    {{#if (or doc.shippingAddress.line1 doc.poNumber doc.vehicleNo doc.eWayBillNo)}}
+    <div class="card" style="border-left: 3px solid #64748B; flex: 1;">
+      <div class="card-title">Ship To / Dispatch &amp; Reference</div>
+      {{#if doc.shippingAddress.line1}}
+        <div style="font-size: 13.5px; font-weight: 700;">{{doc.partyName}}</div>
+        <div class="muted" style="font-size: 11.5px;">{{doc.shippingAddress.line1}} {{doc.shippingAddress.line2}}</div>
+        <div class="muted" style="font-size: 11.5px;">{{doc.shippingAddress.city}}{{#if doc.shippingAddress.state}}, {{doc.shippingAddress.state}}{{/if}} {{doc.shippingAddress.pincode}}</div>
+      {{/if}}
+      {{#if doc.poNumber}}<div style="margin-top: 2px; font-size: 11.5px;"><span class="muted">P.O. No:</span> <strong>{{doc.poNumber}}</strong></div>{{/if}}
+      {{#if doc.vehicleNo}}<div style="margin-top: 2px; font-size: 11.5px;"><span class="muted">Vehicle No:</span> <strong>{{doc.vehicleNo}}</strong></div>{{/if}}
+      {{#if doc.eWayBillNo}}<div style="margin-top: 2px; font-size: 11.5px;"><span class="muted">e-Way Bill No:</span> <strong>{{doc.eWayBillNo}}</strong></div>{{/if}}
     </div>
     {{/if}}
   </div>
 
-  <!-- Items Table -->
+  <!-- Items Table (Enterprise Layout) -->
   <table class="items-table">
     <thead>
       <tr>
-        <th style="width: 36px;" class="center">#</th>
+        <th style="width: 28px;" class="center">#</th>
         <th>Item Description</th>
-        <th class="center" style="width: 85px;">HSN/SAC</th>
-        <th class="num" style="width: 65px;">Qty</th>
-        <th class="num" style="width: 95px;">Rate</th>
-        <th class="num" style="width: 80px;">Disc</th>
-        <th class="num" style="width: 65px;">Tax</th>
-        <th class="num" style="width: 110px;">Amount</th>
+        <th class="center" style="width: 65px;">HSN/SAC</th>
+        <th class="num" style="width: 48px;">Qty</th>
+        <th class="num" style="width: 80px;">Rate</th>
+        <th class="num" style="width: 65px;">Disc</th>
+        <th class="num" style="width: 75px;">Taxable</th>
+        <th class="num" style="width: 55px;">GST %</th>
+        <th class="num" style="width: 90px;">Amount</th>
       </tr>
     </thead>
     <tbody>
@@ -96,35 +110,76 @@
         <td class="center muted">{{inc @index}}</td>
         <td>
           <strong style="color: var(--text-main);">{{this.name}}</strong>
-          {{#if this.description}}<div class="muted" style="font-size: 11px;">{{this.description}}</div>{{/if}}
+          {{#if this.description}}<div class="muted" style="font-size: 10.5px;">{{this.description}}</div>{{/if}}
         </td>
         <td class="center muted">{{#if this.hsn}}{{this.hsn}}{{else}}-{{/if}}</td>
         <td class="num bold">{{this.qty}}{{#if this.unitName}}<span class="muted" style="font-weight: normal;"> {{this.unitName}}</span>{{/if}}</td>
         <td class="num">{{money this.price}}</td>
-        <td class="num muted">{{#if this.discount}}{{money this.discount}}{{else}}-{{/if}}</td>
-        <td class="num muted">{{#if this.taxRate}}{{this.taxRate}}%{{else}}0%{{/if}}</td>
+        <td class="num muted">{{#if this.discountValue}}{{money this.discountValue}}{{else}}-{{/if}}</td>
+        <td class="num bold">{{money this.taxable}}</td>
+        <td class="num muted">{{this.taxRate}}%</td>
         <td class="num bold" style="color: var(--primary);">{{money this.amount}}</td>
       </tr>
       {{/each}}
     </tbody>
+    <tfoot>
+      <tr style="background: #F1F5F9; font-weight: 700; font-size: 11.5px;">
+        <td colspan="3" style="padding: 8px 12px;">Total Items: {{doc.totalItems}}</td>
+        <td class="num" style="padding: 8px 12px; color: var(--primary);">{{doc.totalQty}}</td>
+        <td colspan="2"></td>
+        <td class="num" style="padding: 8px 12px;">{{money doc.subtotal}}</td>
+        <td></td>
+        <td class="num" style="padding: 8px 12px; font-size: 13px; color: var(--primary);">{{money doc.grandTotal company.currencySymbol}}</td>
+      </tr>
+    </tfoot>
   </table>
 
-  <!-- Summary Section Grid -->
-  <div class="grid-2" style="margin-top: 20px; align-items: flex-start;">
-    <!-- Left Column: Words, QR Code & Notes -->
-    <div style="flex: 1.1; display: flex; flex-direction: column; gap: 12px;">
-      <div class="card">
+  <!-- HSN Tax Summary Table -->
+  {{#if doc.hsnSummary}}
+  <div style="margin-top: 14px;">
+    <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px;">HSN / SAC Tax Summary</div>
+    <table style="width: 100%; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; font-size: 11px;">
+      <thead style="background: #F8FAFC; border-bottom: 1px solid var(--border);">
+        <tr>
+          <th style="padding: 5px 10px; text-align: left;">HSN/SAC</th>
+          <th style="padding: 5px 10px; text-align: right;">Taxable Amount</th>
+          <th style="padding: 5px 10px; text-align: right;">CGST</th>
+          <th style="padding: 5px 10px; text-align: right;">SGST</th>
+          <th style="padding: 5px 10px; text-align: right;">IGST</th>
+          <th style="padding: 5px 10px; text-align: right;">Total Tax</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each doc.hsnSummary}}
+        <tr style="border-bottom: 1px solid var(--border);">
+          <td style="padding: 5px 10px; font-weight: 600;">{{this.hsn}}</td>
+          <td style="padding: 5px 10px; text-align: right;">{{money this.taxable}}</td>
+          <td style="padding: 5px 10px; text-align: right;">{{money this.cgst}}</td>
+          <td style="padding: 5px 10px; text-align: right;">{{money this.sgst}}</td>
+          <td style="padding: 5px 10px; text-align: right;">{{money this.igst}}</td>
+          <td style="padding: 5px 10px; text-align: right; font-weight: 700;">{{money this.totalTax}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+  {{/if}}
+
+  <!-- Summary Grid: Words + QR + Financial Breakdown -->
+  <div class="grid-2" style="margin-top: 14px; align-items: flex-start;">
+    <div style="flex: 1.1; display: flex; flex-direction: column; gap: 10px;">
+      <div class="card" style="background: #F8FAFC; border-left: 3px solid var(--primary);">
         <div class="card-title">Amount in Words</div>
-        <div style="font-weight: 600; color: var(--text-main);">{{words doc.grandTotal}}</div>
+        <div style="font-size: 12.5px; font-weight: 700; color: var(--text-main);">{{words doc.grandTotal}}</div>
       </div>
 
       {{#if upiQr}}
-      <div class="card" style="display: flex; align-items: center; gap: 14px;">
-        <img src="{{upiQr}}" alt="UPI QR" style="width: 90px; height: 90px; border-radius: 6px; border: 1px solid var(--border);" />
+      <div class="card" style="display: flex; align-items: center; gap: 12px; background: #EFF6FF; border-color: #BFDBFE;">
+        <img src="{{upiQr}}" alt="UPI QR" style="width: 76px; height: 76px; border-radius: 6px; border: 1px solid #93C5FD;" />
         <div>
-          <div class="card-title" style="margin-bottom: 2px;">Instant UPI Payment QR</div>
-          <div style="font-weight: 700; color: var(--primary);">Scan with PhonePe, GPay or Paytm</div>
-          {{#if company.upiId}}<div class="muted" style="font-size: 11px; margin-top: 2px;">VPA: <strong>{{company.upiId}}</strong></div>{{/if}}
+          <div class="card-title" style="color: #1D4ED8; margin-bottom: 2px;">Scan &amp; Pay via UPI</div>
+          <div style="font-weight: 800; font-size: 12.5px; color: #1E40AF;">Pay ₹{{doc.balanceAmount}} using GPay / PhonePe / Paytm</div>
+          {{#if company.upiId}}<div class="muted" style="font-size: 11px; margin-top: 2px;">UPI ID: <strong>{{company.upiId}}</strong></div>{{/if}}
         </div>
       </div>
       {{/if}}
@@ -132,50 +187,38 @@
       {{#if doc.notes}}
       <div class="card">
         <div class="card-title">Notes / Instructions</div>
-        <div class="muted" style="white-space: pre-line;">{{doc.notes}}</div>
+        <div class="muted" style="white-space: pre-line; font-size: 11px;">{{doc.notes}}</div>
       </div>
       {{/if}}
     </div>
 
-    <!-- Right Column: Dedicated Summary Card -->
     <div style="flex: 0.9;" class="card">
-      <div class="card-title" style="border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-bottom: 8px;">Financial Summary</div>
-      <table class="totals-table">
+      <table class="totals-table" style="font-size: 12px;">
         <tr>
           <td class="muted">Subtotal (Taxable)</td>
           <td class="right bold">{{money doc.subtotal company.currencySymbol}}</td>
         </tr>
-        {{#if doc.docDiscount}}
-        <tr>
-          <td class="muted">Discount</td>
-          <td class="right" style="color: var(--accent);">-{{money doc.docDiscount company.currencySymbol}}</td>
-        </tr>
-        {{/if}}
         {{#if doc.cgst}}
         <tr>
-          <td class="muted">CGST</td>
+          <td class="muted">Central Tax (CGST)</td>
           <td class="right">{{money doc.cgst company.currencySymbol}}</td>
         </tr>
+        {{/if}}
+        {{#if doc.sgst}}
         <tr>
-          <td class="muted">SGST</td>
+          <td class="muted">State Tax (SGST)</td>
           <td class="right">{{money doc.sgst company.currencySymbol}}</td>
         </tr>
         {{/if}}
         {{#if doc.igst}}
         <tr>
-          <td class="muted">IGST</td>
+          <td class="muted">Integrated Tax (IGST)</td>
           <td class="right">{{money doc.igst company.currencySymbol}}</td>
-        </tr>
-        {{/if}}
-        {{#if doc.cess}}
-        <tr>
-          <td class="muted">CESS</td>
-          <td class="right">{{money doc.cess company.currencySymbol}}</td>
         </tr>
         {{/if}}
         {{#if doc.shippingCharge}}
         <tr>
-          <td class="muted">Shipping / Freight</td>
+          <td class="muted">Shipping &amp; Delivery</td>
           <td class="right">{{money doc.shippingCharge company.currencySymbol}}</td>
         </tr>
         {{/if}}
@@ -186,58 +229,56 @@
         </tr>
         {{/if}}
         <tr class="grand-row">
-          <td>Grand Total</td>
-          <td class="right">{{money doc.grandTotal company.currencySymbol}}</td>
+          <td style="font-size: 14px; font-weight: 800;">Grand Total</td>
+          <td class="right" style="font-size: 16px; font-weight: 900; color: var(--primary);">{{money doc.grandTotal company.currencySymbol}}</td>
         </tr>
         {{#if doc.paidAmount}}
-        <tr style="border-top: 1px solid var(--border);">
-          <td class="muted">Amount Paid</td>
-          <td class="right" style="color: var(--accent);">{{money doc.paidAmount company.currencySymbol}}</td>
-        </tr>
         <tr>
-          <td><strong>Balance Due</strong></td>
-          <td class="right bold" style="color: var(--danger); font-size: 14px;">{{money doc.balanceAmount company.currencySymbol}}</td>
+          <td style="color: #047857; font-weight: 700; padding-top: 4px;">Received / Paid</td>
+          <td class="right" style="color: #047857; font-weight: 800; padding-top: 4px;">{{money doc.paidAmount company.currencySymbol}}</td>
+        </tr>
+        {{/if}}
+        {{#if doc.balanceAmount}}
+        <tr>
+          <td style="color: #B91C1C; font-weight: 800; padding-top: 4px;">Balance Due</td>
+          <td class="right" style="color: #B91C1C; font-weight: 900; font-size: 13.5px; padding-top: 4px;">{{money doc.balanceAmount company.currencySymbol}}</td>
         </tr>
         {{/if}}
       </table>
     </div>
   </div>
 
-  <!-- Terms & Bank Details -->
-  <div class="grid-2" style="margin-top: 20px;">
+  <!-- Bank Details & Terms -->
+  <div class="grid-2" style="margin-top: 14px;">
     {{#if company.bankName}}
-    <div class="card">
-      <div class="card-title">Bank Payment Details</div>
-      <div style="font-weight: 700; color: var(--text-main);">{{company.bankName}}</div>
-      <div><span class="muted">A/C No:</span> <strong>{{company.bankAccount}}</strong></div>
-      <div><span class="muted">IFSC Code:</span> <strong>{{company.bankIfsc}}</strong></div>
-      {{#if company.bankBranch}}<div class="muted">Branch: {{company.bankBranch}}</div>{{/if}}
+    <div class="card" style="border-left: 3px solid #059669; flex: 1;">
+      <div class="card-title" style="color: #059669;">Bank Payment Account</div>
+      <div style="font-size: 13px; font-weight: 800;">{{company.bankName}}</div>
+      <div style="font-size: 11.5px;"><span class="muted">A/C Holder:</span> <strong>{{#if company.bankAccountName}}{{company.bankAccountName}}{{else}}{{company.name}}{{/if}}</strong></div>
+      <div style="font-size: 11.5px;"><span class="muted">A/C Number:</span> <strong style="font-family: monospace; font-size: 12.5px;">{{company.bankAccount}}</strong></div>
+      <div style="font-size: 11.5px;"><span class="muted">IFSC Code:</span> <strong style="font-family: monospace;">{{company.bankIfsc}}</strong></div>
     </div>
     {{/if}}
 
     {{#if doc.terms}}
-    <div class="card">
+    <div class="card" style="flex: 1;">
       <div class="card-title">Terms &amp; Conditions</div>
-      <div class="muted" style="white-space: pre-line; font-size: 11.5px;">{{doc.terms}}</div>
+      <div class="muted" style="white-space: pre-line; font-size: 10.5px; line-height: 1.4;">{{doc.terms}}</div>
     </div>
     {{/if}}
   </div>
 
-  <!-- Signature Section -->
-  <div class="signature-grid">
-    <div class="signature-box">
-      <div class="signature-line">Customer Signature</div>
+  <!-- Signatures Footer -->
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 28px; padding-top: 12px;">
+    <div style="text-align: center; width: 200px;">
+      <div style="border-top: 1px solid var(--text-muted); padding-top: 4px; font-size: 11.5px; font-weight: 600;">Customer Signature</div>
     </div>
 
-    <div class="signature-box">
-      <div class="signature-line">Prepared By</div>
-    </div>
-
-    <div class="signature-box">
+    <div style="text-align: center; width: 220px;">
       {{#if company.signature}}
-        <img src="{{company.signature}}" alt="Authorized Signatory" style="max-height: 48px; object-fit: contain; margin-bottom: 4px;" /><br/>
+        <img src="{{company.signature}}" alt="Authorized Signatory" style="max-height: 52px; max-width: 180px; object-fit: contain; margin-bottom: 4px; display: block; margin-left: auto; margin-right: auto;" />
       {{/if}}
-      <div class="signature-line">Authorized Signatory</div>
+      <div style="border-top: 1px solid var(--text-muted); padding-top: 4px; font-size: 11.5px; font-weight: 700; color: var(--text-main);">Authorized Signatory</div>
       <div class="muted" style="font-size: 10.5px;">for {{company.name}}</div>
     </div>
   </div>

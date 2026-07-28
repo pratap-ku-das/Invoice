@@ -23,6 +23,8 @@ import { AuditModule } from './modules/audit/audit.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { SubscriptionModule } from './modules/subscription/subscription.module';
+import { AppUpdateModule } from './modules/app-update/app-update.module';
+import { AiModule } from './modules/ai/ai.module';
 
 @Module({
   imports: [
@@ -58,6 +60,8 @@ import { SubscriptionModule } from './modules/subscription/subscription.module';
     NotificationsModule,
     AdminModule,
     SubscriptionModule,
+    AppUpdateModule,
+    AiModule,
   ],
   providers: [
     // JWT auth is global; individual routes opt out with @Public()

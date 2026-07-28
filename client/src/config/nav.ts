@@ -20,7 +20,6 @@ import {
   QrCode,
   Printer,
   Settings,
-  ShieldCheck,
   BarChart3,
   PieChart,
   Gem,
@@ -93,7 +92,6 @@ export const NAV: NavSection[] = [
       { label: 'Print Settings', to: '/app/print-settings', icon: Printer },
       { label: 'Settings', to: '/app/settings', icon: Settings },
       { label: 'Plan & Billing', to: '/app/plan', icon: Gem },
-      { label: 'Companies Panel', to: '/admin/companies', icon: ShieldCheck },
     ],
   },
 ];

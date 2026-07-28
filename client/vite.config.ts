@@ -11,9 +11,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'logos/app_logo.jpg', 'robots.txt', 'sitemap.xml'],
       manifest: {
-        name: 'BalajiOne Enterprises Invoice App',
+        name: 'BalajiOne Invoice - Smart AI GST Billing Platform',
         short_name: 'BalajiOne Invoice',
-        description: 'Next-Gen Multi-Tenant GST Billing & ERP Mobile App developed by Pratap Kumar Das @ founder of BalajiOne Enterprises',
+        description: 'Next-Gen Multi-Tenant AI GST Billing & ERP Platform developed by BalajiOne Enterprises',
         theme_color: '#4f46e5',
         background_color: '#090d16',
         display: 'standalone',
@@ -66,8 +66,8 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/api': { target: 'http://localhost:3000', changeOrigin: true },
-      '/uploads': { target: 'http://localhost:3000', changeOrigin: true },
+      '/api': { target: 'http://127.0.0.1:3000', changeOrigin: true },
+      '/uploads': { target: 'http://127.0.0.1:3000', changeOrigin: true },
     },
   },
   test: {

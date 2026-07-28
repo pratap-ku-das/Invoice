@@ -35,7 +35,7 @@ export function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; onClose:
         </div>
         <div className="leading-tight">
           <div className="text-[15px] font-extrabold tracking-tight bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">
-            PaperBolt Monogram
+            BalajiOne Invoice
           </div>
           <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
             Billing Suite

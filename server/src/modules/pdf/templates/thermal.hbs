@@ -1,10 +1,10 @@
 <div class="thermal-doc" style="font-family: 'Courier New', Courier, monospace; font-size: 11px; padding: 8px; width: 100%; color: #000;">
   <div style="text-align: center; border-bottom: 1px dashed #000; padding-bottom: 6px; margin-bottom: 6px;">
+    {{#if company.logo}}<img src="{{company.logo}}" alt="logo" style="max-height: 40px; margin: 0 auto 4px auto; display: block;" />{{/if}}
     <div style="font-size: 14px; font-weight: 800; text-transform: uppercase;">{{company.name}}</div>
-    <div>{{company.address.line1}}</div>
-    <div>{{company.address.city}} {{company.address.pincode}}</div>
+    <div>{{formatAddress company.address}}</div>
     {{#if company.gstin}}<div>GSTIN: {{company.gstin}}</div>{{/if}}
-    <div>Ph: {{company.phone}}</div>
+    <div>{{formatContactLine company.phone company.email}}</div>
   </div>
 
   <div style="text-align: center; font-weight: 800; font-size: 12px; margin-bottom: 4px;">

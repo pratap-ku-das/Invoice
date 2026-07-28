@@ -28,6 +28,8 @@ import { formatCurrency, formatDate, debounce, cn } from '@/lib/utils';
 import { DOC_TYPES } from '@/config/nav';
 import type { BusinessDoc } from '@/types';
 
+import { PdfViewerModal } from '@/components/pdf/PdfViewerModal';
+
 const STATUS_TONE: Record<string, 'gray' | 'green' | 'red' | 'amber' | 'blue' | 'purple'> = {
   draft: 'gray',
   unpaid: 'amber',
@@ -54,8 +56,10 @@ export default function DocumentList({ docType }: { docType: string }) {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [menuFor, setMenuFor] = useState<string | null>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number; opensUpward: boolean } | null>(null);
   const [confirm, setConfirm] = useState<{ action: 'cancel' | 'delete'; doc: BusinessDoc } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [pdfViewerDoc, setPdfViewerDoc] = useState<BusinessDoc | null>(null);
 
   const resource = `documents/${docType}`;
   const { data, isLoading } = useList<BusinessDoc>(resource, {
@@ -81,6 +85,11 @@ export default function DocumentList({ docType }: { docType: string }) {
     qc.invalidateQueries({ queryKey: ['dashboard'] });
   };
 
+  const closeMenu = () => {
+    setMenuFor(null);
+    setMenuPos(null);
+  };
+
   const act = async (fn: () => Promise<unknown>, success: string) => {
     setBusy(true);
     try {
@@ -91,23 +100,44 @@ export default function DocumentList({ docType }: { docType: string }) {
       toast.error(apiError(err));
     } finally {
       setBusy(false);
-      setMenuFor(null);
+      closeMenu();
       setConfirm(null);
     }
   };
 
-  const openPdf = (doc: BusinessDoc) =>
-    window.open(`/api/pdf/${docType}/${doc._id}/pdf`, '_blank');
+  const openPdf = (doc: BusinessDoc) => {
+    closeMenu();
+    setPdfViewerDoc(doc);
+  };
   const openPrint = (doc: BusinessDoc) => {
-    const w = window.open(`/api/pdf/${docType}/${doc._id}/preview`, '_blank');
-    w?.addEventListener('load', () => w.print());
+    closeMenu();
+    setPdfViewerDoc(doc);
   };
   const shareWhatsApp = (doc: BusinessDoc) => {
+    closeMenu();
     const msg = encodeURIComponent(
       `${meta.title} ${doc.number}\nAmount: ₹${doc.grandTotal}\nThank you for your business!`,
     );
     const phone = doc.partyPhone?.replace(/\D/g, '');
     window.open(`https://wa.me/${phone ? `91${phone.slice(-10)}` : ''}?text=${msg}`, '_blank');
+  };
+
+  const toggleMenu = (e: React.MouseEvent<HTMLButtonElement>, docId: string) => {
+    e.stopPropagation();
+    if (menuFor === docId) {
+      closeMenu();
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const opensUpward = spaceBelow < 320 && rect.top > 320;
+
+    setMenuFor(docId);
+    setMenuPos({
+      top: rect.bottom + 4,
+      right: Math.max(12, window.innerWidth - rect.right),
+      opensUpward,
+    });
   };
 
   const columns = useMemo<ColumnDef<BusinessDoc, unknown>[]>(
@@ -118,24 +148,31 @@ export default function DocumentList({ docType }: { docType: string }) {
         cell: ({ row }) => (
           <div>
             <p className="font-medium text-brand-600">{row.original.number}</p>
-            <p className="text-xs text-slate-400">{formatDate(row.original.date)}</p>
+            <p className="text-[11px] text-slate-400">{formatDate(row.original.date)}</p>
           </div>
         ),
       },
       {
-        id: 'partyName',
-        header: meta.partyLabel,
-        cell: ({ row }) => row.original.partyName ?? '—',
+        id: 'party',
+        header: 'Party',
+        cell: ({ row }) => (
+          <div>
+            <p className="font-medium">{row.original.partyName}</p>
+            {row.original.partyPhone && (
+              <p className="text-[11px] text-slate-400">{row.original.partyPhone}</p>
+            )}
+          </div>
+        ),
       },
       {
-        id: 'grandTotal',
+        id: 'total',
         header: 'Amount',
-        cell: ({ row }) => <strong>{formatCurrency(row.original.grandTotal)}</strong>,
+        cell: ({ row }) => <span className="font-semibold">{formatCurrency(row.original.grandTotal)}</span>,
       },
       ...(meta.hasPayments
         ? [
             {
-              id: 'balanceAmount',
+              id: 'balance',
               header: 'Balance',
               cell: ({ row }: { row: { original: BusinessDoc } }) =>
                 row.original.balanceAmount > 0 ? (
@@ -160,21 +197,36 @@ export default function DocumentList({ docType }: { docType: string }) {
         cell: ({ row }) => {
           const doc = row.original;
           const open = menuFor === doc._id;
+
           return (
             <div className="relative flex justify-end" onClick={(e) => e.stopPropagation()}>
               <button
                 className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                onClick={() => setMenuFor(open ? null : doc._id)}
+                onClick={(e) => toggleMenu(e, doc._id)}
               >
                 <MoreVertical className="h-4 w-4" />
               </button>
-              {open && (
+              {open && menuPos && (
                 <>
-                  <div className="fixed inset-0 z-10" onClick={() => setMenuFor(null)} />
-                  <div className="absolute right-0 top-8 z-20 w-52 rounded-xl border border-slate-200 bg-white py-1 shadow-soft dark:border-slate-700 dark:bg-slate-800">
-                    <MenuItem icon={Eye} label="View" onClick={() => navigate(`${meta.route}/${doc._id}`)} />
+                  <div
+                    className="fixed inset-0 z-40 bg-transparent"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      closeMenu();
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: 'fixed',
+                      top: menuPos.opensUpward ? 'auto' : `${menuPos.top}px`,
+                      bottom: menuPos.opensUpward ? `${Math.max(12, window.innerHeight - menuPos.top + 28)}px` : 'auto',
+                      right: `${menuPos.right}px`,
+                    }}
+                    className="z-50 w-52 rounded-xl border border-slate-200 bg-white py-1 shadow-2xl dark:border-slate-700 dark:bg-slate-800 animate-in fade-in zoom-in-95 duration-100"
+                  >
+                    <MenuItem icon={Eye} label="View" onClick={() => { closeMenu(); navigate(`${meta.route}/${doc._id}`); }} />
                     {!doc.isLocked && doc.status !== 'cancelled' && (
-                      <MenuItem icon={Pencil} label="Edit" onClick={() => navigate(`${meta.route}/${doc._id}/edit`)} />
+                      <MenuItem icon={Pencil} label="Edit" onClick={() => { closeMenu(); navigate(`${meta.route}/${doc._id}/edit`); }} />
                     )}
                     <MenuItem
                       icon={Copy}
@@ -186,7 +238,7 @@ export default function DocumentList({ docType }: { docType: string }) {
                         )
                       }
                     />
-                    <MenuItem icon={Printer} label="Print" onClick={() => openPrint(doc)} />
+                    <MenuItem icon={Printer} label="Print & Preview" onClick={() => openPrint(doc)} />
                     <MenuItem icon={Download} label="Download PDF" onClick={() => openPdf(doc)} />
                     <MenuItem icon={Share2} label="Share WhatsApp" onClick={() => shareWhatsApp(doc)} />
                     {meta.hasPayments && doc.balanceAmount > 0 && doc.status !== 'cancelled' && doc.status !== 'draft' && (
@@ -334,6 +386,15 @@ export default function DocumentList({ docType }: { docType: string }) {
           </Button>
         </div>
       </Modal>
+
+      {pdfViewerDoc && (
+        <PdfViewerModal
+          open={!!pdfViewerDoc}
+          onClose={() => setPdfViewerDoc(null)}
+          docType={docType}
+          doc={pdfViewerDoc}
+        />
+      )}
     </div>
   );
 }

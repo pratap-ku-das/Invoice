@@ -6,6 +6,7 @@ import { Topbar } from './Topbar';
 import { GlobalSearch } from './GlobalSearch';
 import { MobileBottomNav } from './MobileBottomNav';
 import { PWAInstallBanner } from '@/components/pwa/PWAInstallBanner';
+import { AppUpdateModal } from '@/components/update/AppUpdateModal';
 import { useAuth } from '@/store/auth';
 import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/feedback';
@@ -51,15 +52,15 @@ export function AppLayout() {
   if (!user) return <Navigate to="/login" replace />;
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-screen h-[100dvh] w-screen overflow-hidden">
       <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <Topbar
           onMenu={() => setMobileOpen(true)}
           onSearch={() => setSearchOpen(true)}
           notifCount={notif?.count ?? 0}
         />
-        <main className="min-w-0 flex-1 overflow-y-auto pb-20 lg:pb-0">
+        <main className="min-w-0 flex-1 overflow-y-auto pb-24 lg:pb-0">
           <Suspense fallback={<PageFallback />}>
             <Outlet />
           </Suspense>
@@ -68,6 +69,7 @@ export function AppLayout() {
       <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
       <MobileBottomNav />
       <PWAInstallBanner />
+      <AppUpdateModal />
     </div>
   );
 }

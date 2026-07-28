@@ -22,6 +22,8 @@ import { formatCurrency, formatDate } from '@/lib/utils';
 import { DOC_TYPES } from '@/config/nav';
 import type { BusinessDoc } from '@/types';
 
+import { PdfViewerModal } from '@/components/pdf/PdfViewerModal';
+
 const THEMES = ['modern', 'professional', 'gst', 'minimal', 'corporate', 'blue', 'dark', 'classic'];
 const PAPERS = [
   { value: 'A4', label: 'A4' },
@@ -42,6 +44,7 @@ export default function DocumentView({ docType }: { docType: string }) {
   const [payAmount, setPayAmount] = useState<number | ''>('');
   const [historyOpen, setHistoryOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [pdfViewerOpen, setPdfViewerOpen] = useState(false);
 
   const resource = `documents/${docType}`;
   const { data: doc, isLoading } = useQuery<BusinessDoc & { versionHistory?: { at: string; byName?: string; snapshot: Record<string, unknown> }[] }>({
@@ -55,11 +58,6 @@ export default function DocumentView({ docType }: { docType: string }) {
   const targetId = doc?._id ?? id;
 
   const previewUrl = `${apiBase}/pdf/${docType}/${targetId}/preview?${new URLSearchParams({
-    ...(theme ? { theme } : {}),
-    paperSize: paper,
-    ...(token ? { token } : {}),
-  })}`;
-  const pdfUrl = `${apiBase}/pdf/${docType}/${targetId}/pdf?${new URLSearchParams({
     ...(theme ? { theme } : {}),
     paperSize: paper,
     ...(token ? { token } : {}),
@@ -132,17 +130,17 @@ export default function DocumentView({ docType }: { docType: string }) {
           </Button>
         )}
         <Button
-          variant="outline"
-          onClick={() => {
-            const w = window.open(previewUrl, '_blank');
-            if (w) w.onload = () => w.print();
-          }}
+          onClick={() => setPdfViewerOpen(true)}
+          className="bg-brand-600 hover:bg-brand-500 text-white font-semibold"
         >
-          <Printer className="h-4 w-4" /> Print
+          <Printer className="h-4 w-4 mr-1.5" /> Print &amp; PDF Preview
         </Button>
-        <a href={pdfUrl} target="_blank" rel="noreferrer" className="btn-outline">
-          <Download className="h-4 w-4" /> PDF
-        </a>
+        <Button
+          variant="outline"
+          onClick={() => setPdfViewerOpen(true)}
+        >
+          <Download className="h-4 w-4 mr-1.5" /> PDF
+        </Button>
         <Button
           variant="outline"
           onClick={() => {
@@ -297,15 +295,24 @@ export default function DocumentView({ docType }: { docType: string }) {
             ))}
         </div>
       </Modal>
+
+      <PdfViewerModal
+        open={pdfViewerOpen}
+        onClose={() => setPdfViewerOpen(false)}
+        docType={docType}
+        doc={doc}
+        initialTheme={theme}
+        initialPaper={paper}
+      />
     </div>
   );
 }
 
 function SummaryTile({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className="card p-3">
-      <p className="text-xs text-slate-400">{label}</p>
-      <p className={`text-lg font-bold ${highlight ? 'text-red-500' : ''}`}>{value}</p>
+    <div className="card p-2.5 sm:p-3">
+      <p className="text-[10px] sm:text-xs text-slate-400">{label}</p>
+      <p className={`text-xs sm:text-lg font-bold ${highlight ? 'text-red-500 dark:text-red-400' : ''}`}>{value}</p>
     </div>
   );
 }

@@ -15,8 +15,8 @@ export interface PlanDef {
 
 export const PLANS: Record<PlanId, PlanDef> = {
   free: {
-    name: 'Free',
-    priceInr: 0,
+    name: 'Starter',
+    priceInr: 299,
     limits: { maxInvoicesPerMonth: 50, maxUsers: 2, maxCompanies: 1 },
   },
   basic: {

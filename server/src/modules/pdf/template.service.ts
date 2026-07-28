@@ -36,10 +36,10 @@ export class TemplateService implements OnModuleInit {
   }
 
   private templateDir() {
-    // works both from src (dev) and dist (prod)
+    // Check src/ first in dev, then __dirname/dist
     const candidates = [
-      join(__dirname, 'templates'),
       join(process.cwd(), 'src', 'modules', 'pdf', 'templates'),
+      join(__dirname, 'templates'),
       join(process.cwd(), 'dist', 'modules', 'pdf', 'templates'),
     ];
     return candidates.find((c) => existsSync(join(c, 'base.hbs'))) ?? candidates[0];
@@ -62,6 +62,53 @@ export class TemplateService implements OnModuleInit {
     Handlebars.registerHelper('lower', (v: unknown) => String(v ?? '').toLowerCase());
     Handlebars.registerHelper('nowDate', () => dayjs().format('DD MMM YYYY HH:mm'));
 
+    Handlebars.registerHelper('stateCode', (val: unknown) => {
+      const str = String(val || '').trim();
+      if (!str) return '';
+      if (/^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z0-9]{3}$/i.test(str)) {
+        return str.substring(0, 2);
+      }
+      const stateMap: Record<string, string> = {
+        'jammu & kashmir': '01', 'himachal pradesh': '02', 'punjab': '03', 'chandigarh': '04',
+        'uttarakhand': '05', 'haryana': '06', 'delhi': '07', 'rajasthan': '08', 'uttar pradesh': '09',
+        'bihar': '10', 'sikkim': '11', 'arunachal pradesh': '12', 'nagaland': '13', 'manipur': '14',
+        'mizoram': '15', 'tripura': '16', 'meghalaya': '17', 'assam': '18', 'west bengal': '19',
+        'jharkhand': '20', 'odisha': '21', 'orissa': '21', 'chhattisgarh': '22', 'madhya pradesh': '23',
+        'gujarat': '24', 'daman & diu': '25', 'dadra & nagar haveli': '26', 'maharashtra': '27',
+        'andhra pradesh': '37', 'karnataka': '29', 'goa': '30', 'lakshadweep': '31', 'kerala': '32',
+        'tamil nadu': '33', 'puducherry': '34', 'andaman & nicobar islands': '35', 'telangana': '36', 'ladakh': '38'
+      };
+      return stateMap[str.toLowerCase()] || '';
+    });
+
+    Handlebars.registerHelper('formatAddress', (addr: Record<string, unknown> | undefined) => {
+      if (!addr || typeof addr !== 'object') return '';
+      const line1 = String(addr.line1 || '').trim();
+      const line2 = String(addr.line2 || '').trim();
+      const city = String(addr.city || '').trim();
+      const state = String(addr.state || '').trim();
+      const pincode = String(addr.pincode || '').trim();
+
+      const lines: string[] = [];
+      const street = [line1, line2].filter(Boolean).join(', ');
+      if (street) lines.push(street);
+
+      const cityParts = [city, state].filter(Boolean).join(', ');
+      const cityStatePin = [cityParts, pincode].filter(Boolean).join(' - ');
+      if (cityStatePin) lines.push(cityStatePin);
+
+      return new Handlebars.SafeString(lines.join('<br/>'));
+    });
+
+    Handlebars.registerHelper('formatContactLine', (phone: unknown, email: unknown) => {
+      const p = String(phone || '').trim();
+      const e = String(email || '').trim();
+      if (p && e) return new Handlebars.SafeString(`Ph: ${p} &bull; ${e}`);
+      if (p) return `Ph: ${p}`;
+      if (e) return e;
+      return '';
+    });
+
     const dir = this.templateDir();
     const basePath = join(dir, 'base.hbs');
     if (existsSync(basePath)) this.base = readFileSync(basePath, 'utf-8');
@@ -77,9 +124,8 @@ export class TemplateService implements OnModuleInit {
   }
 
   render(data: InvoiceTemplateData): string {
-    if (!this.compiled.has('base')) {
-      this.compiled.set('base', Handlebars.compile(this.base));
-    }
-    return this.compiled.get('base')!(data);
+    this.registerHelpers();
+    const baseCompiler = Handlebars.compile(this.base);
+    return baseCompiler(data);
   }
 }

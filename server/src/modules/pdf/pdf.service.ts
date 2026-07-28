@@ -12,6 +12,9 @@ function findChromeExecutable(): string | undefined {
     '/usr/bin/google-chrome',
     '/usr/bin/chromium',
     '/usr/bin/chromium-browser',
+    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
   ];
   for (const p of systemPaths) {
     if (fs.existsSync(p)) return p;
@@ -45,7 +48,12 @@ function searchForChromeFile(dir: string): string | undefined {
       if (entry.isDirectory()) {
         const sub = searchForChromeFile(fullPath);
         if (sub) return sub;
-      } else if (entry.name === 'chrome' || entry.name === 'chrome-linux') {
+      } else if (
+        entry.name === 'chrome.exe' ||
+        entry.name === 'chrome' ||
+        entry.name === 'chrome-linux' ||
+        entry.name === 'msedge.exe'
+      ) {
         return fullPath;
       }
     }
@@ -83,8 +91,6 @@ export class PdfService implements OnModuleDestroy {
           '--disable-dev-shm-usage',
           '--disable-gpu',
           '--no-first-run',
-          '--no-zygote',
-          '--single-process',
         ],
       })
       .then((b) => {
@@ -100,11 +106,17 @@ export class PdfService implements OnModuleDestroy {
   }
 
   async htmlToPdf(html: string, options: RenderOptions = {}): Promise<Buffer> {
-    const { paperSize = 'A4', orientation = 'portrait', marginMm = 10 } = options;
+    const { paperSize = 'A4', orientation = 'portrait', marginMm = 8 } = options;
     const browser = await this.getBrowser();
     const page = await browser.newPage();
     try {
-      await page.setContent(html, { waitUntil: 'networkidle0' });
+      await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 15000 });
+      try {
+        await Promise.race([
+          page.evaluateHandle('document.fonts.ready'),
+          new Promise((resolve) => setTimeout(resolve, 2000)),
+        ]);
+      } catch {}
 
       const widths: Record<PaperSize, string | undefined> = {
         A4: undefined,
@@ -129,6 +141,7 @@ export class PdfService implements OnModuleDestroy {
           format: 'A4',
           landscape: orientation === 'landscape',
           printBackground: true,
+          displayHeaderFooter: false,
           margin: {
             top: `${marginMm}mm`,
             bottom: `${marginMm}mm`,

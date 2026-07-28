@@ -64,7 +64,7 @@ const STATES = [
 ];
 
 const SUBSCRIPTION_PLANS = [
-  { id: 'free', name: 'Free', price: '₹0', users: '1 User', branches: '1 Branch', storage: '50MB' },
+  { id: 'free', name: 'Starter', price: '₹299/mo', users: '1 User', branches: '1 Branch', storage: '50MB' },
   { id: 'basic', name: 'Basic', price: '₹499/mo', users: '3 Users', branches: '2 Branches', storage: '1GB' },
   { id: 'pro', name: 'Pro', price: '₹999/mo', users: '10 Users', branches: '5 Branches', storage: '5GB' },
   { id: 'enterprise', name: 'Enterprise', price: '₹1999/mo', users: 'Unlimited', branches: 'Unlimited', storage: '50GB' },
@@ -330,7 +330,7 @@ export default function OnboardingWizard() {
         }).catch(() => {});
       }
 
-      toast.success('Onboarding complete! Welcome to PaperBolt Monogram.');
+      toast.success('Onboarding complete! Welcome to BalajiOne Invoice.');
       navigate('/app');
     } catch (err) {
       toast.error(apiError(err));
@@ -350,7 +350,7 @@ export default function OnboardingWizard() {
             </div>
             <div>
               <span className="text-lg font-extrabold bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">
-                PaperBolt Monogram
+                BalajiOne Invoice
               </span>
               <span className="ml-2 text-xs font-semibold text-slate-400">Onboarding Wizard</span>
             </div>
@@ -427,10 +427,10 @@ export default function OnboardingWizard() {
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <Field label="Company Legal Name" required>
-                    <Input value={formData.companyName} onChange={(e) => handleChange('companyName', e.target.value)} placeholder="PaperBolt Enterprises Pvt Ltd" />
+                    <Input value={formData.companyName} onChange={(e) => handleChange('companyName', e.target.value)} placeholder="BalajiOne Enterprises Pvt Ltd" />
                   </Field>
                   <Field label="Business Display Name">
-                    <Input value={formData.displayName} onChange={(e) => handleChange('displayName', e.target.value)} placeholder="PaperBolt Monogram" />
+                    <Input value={formData.displayName} onChange={(e) => handleChange('displayName', e.target.value)} placeholder="BalajiOne Invoice" />
                   </Field>
                   <Field label="Business Type">
                     <Select value={formData.businessType} onChange={(e) => handleChange('businessType', e.target.value)}>
@@ -681,7 +681,7 @@ export default function OnboardingWizard() {
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <Field label="Account Holder Name">
-                    <Input value={formData.accountName} onChange={(e) => handleChange('accountName', e.target.value)} placeholder="PaperBolt Enterprises" />
+                    <Input value={formData.accountName} onChange={(e) => handleChange('accountName', e.target.value)} placeholder="BalajiOne Enterprises" />
                   </Field>
                   <Field label="Bank Name">
                     <Input value={formData.bankName} onChange={(e) => handleChange('bankName', e.target.value)} placeholder="HDFC Bank" />
@@ -695,7 +695,7 @@ export default function OnboardingWizard() {
                 </div>
 
                 <Field label="UPI ID for Invoice QR">
-                  <Input value={formData.upiId} onChange={(e) => handleChange('upiId', e.target.value)} placeholder="paperbolt@upi" />
+                  <Input value={formData.upiId} onChange={(e) => handleChange('upiId', e.target.value)} placeholder="balajione@upi" />
                 </Field>
               </div>
             )}
@@ -861,7 +861,7 @@ export default function OnboardingWizard() {
                 <div>
                   <h2 className="text-3xl font-extrabold">All Set! Onboarding Complete</h2>
                   <p className="mt-2 text-sm text-slate-500 max-w-md mx-auto">
-                    Your company profile <strong>{formData.companyName || 'PaperBolt Monogram'}</strong> is configured and ready for invoicing.
+                    Your company profile <strong>{formData.companyName || 'BalajiOne Invoice'}</strong> is configured and ready for invoicing.
                   </p>
                 </div>
 

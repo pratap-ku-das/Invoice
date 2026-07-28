@@ -9,14 +9,20 @@ import {
   Search,
   Save,
   FileCheck,
+  Sparkles,
+  Camera,
+  Mic,
+  Loader2,
 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button, Input, Select, Field, Textarea } from '@/components/ui/primitives';
+import { Modal } from '@/components/ui/feedback';
 import { api, apiError } from '@/lib/api';
 import { calcDocument, isInterState } from '@/lib/tax';
 import { formatCurrency, cn } from '@/lib/utils';
 import { DOC_TYPES } from '@/config/nav';
 import type { BusinessDoc, CompanyProfile, Party, Product } from '@/types';
+import { aiService } from '@/services/aiService';
 
 interface LineState {
   key: number;
@@ -98,6 +104,76 @@ export default function DocumentForm({ docType }: { docType: string }) {
   const [payMode, setPayMode] = useState('cash');
   const [payAmount, setPayAmount] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [aiScanLoading, setAiScanLoading] = useState(false);
+  const [voiceOpen, setVoiceOpen] = useState(false);
+  const [voiceTranscript, setVoiceTranscript] = useState('');
+  const [voiceLoading, setVoiceLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAiScanLoading(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = reader.result as string;
+        const result = await aiService.scanReceipt(base64, file.type);
+
+        if (result.vendorName && !party?.name) {
+          setParty({ _id: '', partyType: meta.partyType, name: result.vendorName, gstin: result.vendorGstin });
+        }
+        if (result.items?.length > 0) {
+          const scannedLines = result.items.map((i) => ({
+            key: lineKey++,
+            name: i.name,
+            hsn: i.hsnCode || '9983',
+            qty: i.qty || 1,
+            price: i.rate || 100,
+            discountType: 'percent' as const,
+            discountValue: 0,
+            taxRate: i.taxRate || 18,
+            cessRate: 0,
+          }));
+          setLines((prev) => (prev.length === 1 && !prev[0].name ? scannedLines : [...prev, ...scannedLines]));
+        }
+        toast.success('✨ AI Receipt Scanned & Line Items Extracted!');
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      toast.error('Failed to scan receipt image');
+    } finally {
+      setAiScanLoading(false);
+    }
+  };
+
+  const handleParseVoice = async () => {
+    if (!voiceTranscript.trim()) return;
+    setVoiceLoading(true);
+    try {
+      const result = await aiService.parseVoice(voiceTranscript);
+      if (result.items?.length > 0) {
+        const voiceLines = result.items.map((i) => ({
+          key: lineKey++,
+          name: i.name,
+          qty: i.qty || 1,
+          price: i.rate || 100,
+          discountType: 'percent' as const,
+          discountValue: 0,
+          taxRate: i.taxRate || 18,
+          cessRate: 0,
+        }));
+        setLines((prev) => (prev.length === 1 && !prev[0].name ? voiceLines : [...prev, ...voiceLines]));
+        toast.success(`✨ Added ${voiceLines.length} item(s) via AI Voice Order`);
+      }
+      setVoiceOpen(false);
+      setVoiceTranscript('');
+    } catch (err) {
+      toast.error('Failed to parse voice order');
+    } finally {
+      setVoiceLoading(false);
+    }
+  };
 
   // hydrate on edit
   useEffect(() => {
@@ -159,10 +235,10 @@ export default function DocumentForm({ docType }: { docType: string }) {
   });
 
   // ---------- product search ----------
-  const { data: productResults } = useQuery<{ data: Product[] }>({
+  const { data: productResults, isLoading: isProductsLoading } = useQuery<{ data: Product[] }>({
     queryKey: ['products', 'combo', productSearch],
     queryFn: async () =>
-      (await api.get('/products', { params: { search: productSearch, limit: 8 } })).data,
+      (await api.get('/products', { params: { search: productSearch, limit: 12 } })).data,
     enabled: productOpenFor !== null,
   });
 
@@ -324,10 +400,45 @@ export default function DocumentForm({ docType }: { docType: string }) {
       >
         <ArrowLeft className="h-4 w-4" /> Back
       </button>
-      <PageHeader
-        title={isEdit ? `Edit ${meta.title} ${existing?.number ?? ''}` : `New ${meta.title}`}
-        subtitle={!isEdit ? `Number: ${nextNumber?.number ?? '…'} (auto)` : undefined}
-      />
+
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <PageHeader
+          title={isEdit ? `Edit ${meta.title} ${existing?.number ?? ''}` : `New ${meta.title}`}
+          subtitle={!isEdit ? `Number: ${nextNumber?.number ?? '…'} (auto)` : undefined}
+        />
+
+        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
+          {/* AI Receipt Scanner Input */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            accept="image/*,application/pdf"
+            className="hidden"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={aiScanLoading}
+            className="border-purple-500/30 text-purple-600 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-500/10 shadow-xs justify-center px-2.5 sm:px-3 py-1.5"
+          >
+            {aiScanLoading ? <Loader2 className="h-4 w-4 animate-spin text-purple-600 shrink-0" /> : <Camera className="h-4 w-4 text-purple-600 shrink-0" />}
+            <span className="text-[11px] sm:text-xs font-bold truncate">✨ AI Scan Bill</span>
+          </Button>
+
+          {/* AI Voice Order */}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setVoiceOpen(true)}
+            className="border-indigo-500/30 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 shadow-xs justify-center px-2.5 sm:px-3 py-1.5"
+          >
+            <Mic className="h-4 w-4 text-indigo-600 shrink-0" />
+            <span className="text-[11px] sm:text-xs font-bold truncate">🎙️ AI Voice</span>
+          </Button>
+        </div>
+      </div>
 
       {locked && (
         <div className="mb-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10">
@@ -336,7 +447,7 @@ export default function DocumentForm({ docType }: { docType: string }) {
       )}
 
       {/* Header section */}
-      <div className="card mb-4 grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="card mb-4 grid grid-cols-1 gap-3 p-3.5 sm:gap-4 sm:p-4 sm:grid-cols-2 lg:grid-cols-4">
         <Field label={meta.partyLabel} required>
           <div className="relative">
             <Input
@@ -398,83 +509,242 @@ export default function DocumentForm({ docType }: { docType: string }) {
         )}
       </div>
 
-      {/* Items table */}
-      <div className="card mb-4 overflow-x-auto">
-        <table className="w-full min-w-[860px] text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500 dark:bg-slate-900/60">
-            <tr>
-              <th className="w-8 px-3 py-2.5">#</th>
-              <th className="min-w-[220px] px-3 py-2.5">Item</th>
-              <th className="w-24 px-3 py-2.5">HSN</th>
-              <th className="w-20 px-3 py-2.5">Qty</th>
-              <th className="w-28 px-3 py-2.5">Price</th>
-              <th className="w-28 px-3 py-2.5">Disc</th>
-              <th className="w-20 px-3 py-2.5">GST %</th>
-              <th className="w-28 px-3 py-2.5 text-right">Amount</th>
-              <th className="w-10 px-3 py-2.5"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-            {lines.map((line, idx) => {
-              const lt = totals.lines[lines.filter((l) => l.name).findIndex((l) => l.key === line.key)];
-              return (
-                <tr key={line.key}>
-                  <td className="px-3 py-2 text-slate-400">{idx + 1}</td>
-                  <td className="px-3 py-2">
-                    <div className="relative">
-                      <div className="flex items-center gap-1">
-                        <Input
-                          value={productOpenFor === line.key ? productSearch : line.name}
-                          placeholder="Search / scan / type item name"
-                          onFocus={() => {
-                            setProductOpenFor(line.key);
-                            setProductSearch(line.name);
-                          }}
-                          onChange={(e) => {
-                            setProductSearch(e.target.value);
-                            patchLine(line.key, { name: e.target.value, productId: undefined });
-                          }}
-                          onKeyDown={async (e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                              const hit = await tryBarcode(line.key, productSearch);
-                              if (!hit && idx === lines.length - 1) addLine();
-                            }
-                          }}
-                        />
-                        <Search className="h-4 w-4 shrink-0 text-slate-300" />
+      {/* Items List (Mobile Cards View + Desktop Table View) */}
+      <div className="card mb-4">
+        {/* Desktop Table View */}
+        <div className={cn('hidden sm:block overflow-x-auto min-h-[300px]', productOpenFor !== null && 'pb-48')}>
+          <table className="w-full min-w-[860px] text-xs sm:text-sm">
+            <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500 dark:bg-slate-900/60">
+              <tr>
+                <th className="w-8 px-3 py-2.5">#</th>
+                <th className="min-w-[220px] px-3 py-2.5">Item</th>
+                <th className="w-24 px-3 py-2.5">HSN</th>
+                <th className="w-20 px-3 py-2.5">Qty</th>
+                <th className="w-28 px-3 py-2.5">Price</th>
+                <th className="w-28 px-3 py-2.5">Disc</th>
+                <th className="w-20 px-3 py-2.5">GST %</th>
+                <th className="w-28 px-3 py-2.5 text-right">Amount</th>
+                <th className="w-10 px-3 py-2.5"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {lines.map((line, idx) => {
+                const lt = totals.lines[lines.filter((l) => l.name).findIndex((l) => l.key === line.key)];
+                return (
+                  <tr key={line.key}>
+                    <td className="px-3 py-2 text-slate-400">{idx + 1}</td>
+                    <td className="px-3 py-2">
+                      <div className="relative">
+                        <div className="flex items-center gap-1">
+                          <Input
+                            value={productOpenFor === line.key ? productSearch : line.name}
+                            placeholder="Search / scan / type item name"
+                            onFocus={() => {
+                              setProductOpenFor(line.key);
+                              setProductSearch(line.name || '');
+                            }}
+                            onChange={(e) => {
+                              setProductSearch(e.target.value);
+                              patchLine(line.key, { name: e.target.value, productId: undefined });
+                              setProductOpenFor(line.key);
+                            }}
+                            onKeyDown={async (e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const hit = await tryBarcode(line.key, productSearch);
+                                if (!hit && idx === lines.length - 1) addLine();
+                              }
+                            }}
+                          />
+                          <Search className="h-4 w-4 shrink-0 text-slate-300" />
+                        </div>
+                        {productOpenFor === line.key && (
+                          <>
+                            <div className="fixed inset-0 z-10" onClick={() => setProductOpenFor(null)} />
+                            <div className="absolute z-20 mt-1 max-h-60 w-full min-w-[300px] overflow-y-auto rounded-xl border border-slate-200 bg-white py-1 shadow-xl dark:border-slate-700 dark:bg-slate-800">
+                              {isProductsLoading ? (
+                                <div className="p-3 text-center text-xs text-slate-400">Loading saved products…</div>
+                              ) : (productResults?.data ?? []).length > 0 ? (
+                                (productResults?.data ?? []).map((p) => (
+                                  <button
+                                    key={p._id}
+                                    type="button"
+                                    className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-700"
+                                    onClick={() => pickProduct(line.key, p)}
+                                  >
+                                    <div className="truncate pr-2">
+                                      <div className="font-semibold text-slate-800 dark:text-slate-200">{p.name}</div>
+                                      {p.hsn && <div className="text-[10px] text-slate-400">HSN: {p.hsn}</div>}
+                                    </div>
+                                    <span className="ml-2 shrink-0 text-xs font-bold text-slate-600 dark:text-slate-300">
+                                      {formatCurrency(p.sellingPrice)}
+                                      {p.itemType === 'product' && ` · ${p.stock?.current ?? 0} in stock`}
+                                    </span>
+                                  </button>
+                                ))
+                              ) : (
+                                <div className="p-3 text-center text-xs text-slate-400">
+                                  No saved products found{productSearch ? ` matching "${productSearch}"` : ''}
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        )}
                       </div>
-                      {productOpenFor === line.key && productSearch && (
-                        <>
-                          <div className="fixed inset-0 z-10" onClick={() => setProductOpenFor(null)} />
-                          <div className="absolute z-20 mt-1 max-h-52 w-72 overflow-y-auto rounded-xl border border-slate-200 bg-white py-1 shadow-soft dark:border-slate-700 dark:bg-slate-800">
-                            {(productResults?.data ?? []).map((p) => (
-                              <button
-                                key={p._id}
-                                className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-700"
-                                onClick={() => pickProduct(line.key, p)}
-                              >
-                                <span className="truncate">{p.name}</span>
-                                <span className="ml-2 shrink-0 text-xs text-slate-400">
-                                  {formatCurrency(p.sellingPrice)}
-                                  {p.itemType === 'product' && ` · ${p.stock?.current ?? 0} in stock`}
-                                </span>
-                              </button>
-                            ))}
-                          </div>
-                        </>
+                      {line.productId && line.stockHint !== undefined && (
+                        <p className={cn('mt-0.5 text-xs', line.stockHint <= 0 ? 'text-red-500' : 'text-slate-400')}>
+                          {line.stockHint} in stock
+                        </p>
                       )}
-                    </div>
-                    {line.productId && line.stockHint !== undefined && (
-                      <p className={cn('mt-0.5 text-xs', line.stockHint <= 0 ? 'text-red-500' : 'text-slate-400')}>
-                        {line.stockHint} in stock
-                      </p>
-                    )}
-                  </td>
-                  <td className="px-3 py-2">
-                    <Input value={line.hsn ?? ''} onChange={(e) => patchLine(line.key, { hsn: e.target.value })} />
-                  </td>
-                  <td className="px-3 py-2">
+                    </td>
+                    <td className="px-3 py-2">
+                      <Input value={line.hsn ?? ''} onChange={(e) => patchLine(line.key, { hsn: e.target.value })} />
+                    </td>
+                    <td className="px-3 py-2">
+                      <Input
+                        type="number"
+                        min={0}
+                        step="any"
+                        value={line.qty}
+                        onChange={(e) => patchLine(line.key, { qty: Number(e.target.value) })}
+                      />
+                    </td>
+                    <td className="px-3 py-2">
+                      <Input
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        value={line.price}
+                        onChange={(e) => patchLine(line.key, { price: Number(e.target.value) })}
+                      />
+                    </td>
+                    <td className="px-3 py-2">
+                      <div className="flex">
+                        <Input
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          className="rounded-r-none"
+                          value={line.discountValue}
+                          onChange={(e) => patchLine(line.key, { discountValue: Number(e.target.value) })}
+                        />
+                        <button
+                          type="button"
+                          className="rounded-r-xl border border-l-0 border-slate-300 px-2 text-xs dark:border-slate-700"
+                          onClick={() =>
+                            patchLine(line.key, {
+                              discountType: line.discountType === 'percent' ? 'flat' : 'percent',
+                            })
+                          }
+                        >
+                          {line.discountType === 'percent' ? '%' : '₹'}
+                        </button>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2">
+                      <Input
+                        type="number"
+                        min={0}
+                        max={100}
+                        step="0.01"
+                        value={line.taxRate}
+                        onChange={(e) => patchLine(line.key, { taxRate: Number(e.target.value) })}
+                      />
+                    </td>
+                    <td className="px-3 py-2 text-right font-medium">
+                      {line.name ? formatCurrency(lt?.total ?? 0) : '—'}
+                    </td>
+                    <td className="px-3 py-2">
+                      <button
+                        className="rounded p-1 text-slate-300 hover:text-red-500"
+                        onClick={() => removeLine(line.key)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Mobile Card List View (Only visible on sm:hidden) */}
+        <div className={cn('block sm:hidden divide-y divide-slate-100 dark:divide-slate-800 p-3 space-y-3.5 min-h-[280px]', productOpenFor !== null && 'pb-48')}>
+          {lines.map((line, idx) => {
+            const lt = totals.lines[lines.filter((l) => l.name).findIndex((l) => l.key === line.key)];
+            return (
+              <div key={line.key} className="pt-3.5 first:pt-0 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-400">Item #{idx + 1}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-extrabold text-brand-600 dark:text-brand-400">
+                      {line.name ? formatCurrency(lt?.total ?? 0) : '₹0'}
+                    </span>
+                    <button
+                      className="rounded p-1 text-slate-400 hover:text-red-500"
+                      onClick={() => removeLine(line.key)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Item Name Input */}
+                <div className="relative">
+                  <div className="flex items-center gap-1">
+                    <Input
+                      value={productOpenFor === line.key ? productSearch : line.name}
+                      placeholder="Search / scan / type item name"
+                      onFocus={() => {
+                        setProductOpenFor(line.key);
+                        setProductSearch(line.name || '');
+                      }}
+                      onChange={(e) => {
+                        setProductSearch(e.target.value);
+                        patchLine(line.key, { name: e.target.value, productId: undefined });
+                        setProductOpenFor(line.key);
+                      }}
+                    />
+                    <Search className="h-4 w-4 shrink-0 text-slate-300" />
+                  </div>
+                  {productOpenFor === line.key && (
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setProductOpenFor(null)} />
+                      <div className="absolute z-20 mt-1 max-h-52 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white py-1 shadow-xl dark:border-slate-700 dark:bg-slate-800">
+                        {isProductsLoading ? (
+                          <div className="p-3 text-center text-xs text-slate-400">Loading saved products…</div>
+                        ) : (productResults?.data ?? []).length > 0 ? (
+                          (productResults?.data ?? []).map((p) => (
+                            <button
+                              key={p._id}
+                              type="button"
+                              className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-700"
+                              onClick={() => pickProduct(line.key, p)}
+                            >
+                              <div className="truncate pr-2">
+                                <div className="font-semibold text-slate-800 dark:text-slate-200">{p.name}</div>
+                                {p.hsn && <div className="text-[10px] text-slate-400">HSN: {p.hsn}</div>}
+                              </div>
+                              <span className="ml-2 shrink-0 text-xs font-bold text-slate-600 dark:text-slate-300">
+                                {formatCurrency(p.sellingPrice)}
+                              </span>
+                            </button>
+                          ))
+                        ) : (
+                          <div className="p-3 text-center text-xs text-slate-400">
+                            No saved products found{productSearch ? ` matching "${productSearch}"` : ''}
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Item Details Grid */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] font-semibold text-slate-400">Qty</label>
                     <Input
                       type="number"
                       min={0}
@@ -482,8 +752,9 @@ export default function DocumentForm({ docType }: { docType: string }) {
                       value={line.qty}
                       onChange={(e) => patchLine(line.key, { qty: Number(e.target.value) })}
                     />
-                  </td>
-                  <td className="px-3 py-2">
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold text-slate-400">Price (₹)</label>
                     <Input
                       type="number"
                       min={0}
@@ -491,20 +762,28 @@ export default function DocumentForm({ docType }: { docType: string }) {
                       value={line.price}
                       onChange={(e) => patchLine(line.key, { price: Number(e.target.value) })}
                     />
-                  </td>
-                  <td className="px-3 py-2">
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="text-[10px] font-semibold text-slate-400">HSN</label>
+                    <Input value={line.hsn ?? ''} onChange={(e) => patchLine(line.key, { hsn: e.target.value })} />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold text-slate-400">Disc</label>
                     <div className="flex">
                       <Input
                         type="number"
                         min={0}
                         step="0.01"
-                        className="rounded-r-none"
+                        className="rounded-r-none px-1.5"
                         value={line.discountValue}
                         onChange={(e) => patchLine(line.key, { discountValue: Number(e.target.value) })}
                       />
                       <button
                         type="button"
-                        className="rounded-r-xl border border-l-0 border-slate-300 px-2 text-xs dark:border-slate-700"
+                        className="rounded-r-xl border border-l-0 border-slate-300 px-1.5 text-xs dark:border-slate-700"
                         onClick={() =>
                           patchLine(line.key, {
                             discountType: line.discountType === 'percent' ? 'flat' : 'percent',
@@ -514,8 +793,9 @@ export default function DocumentForm({ docType }: { docType: string }) {
                         {line.discountType === 'percent' ? '%' : '₹'}
                       </button>
                     </div>
-                  </td>
-                  <td className="px-3 py-2">
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold text-slate-400">GST %</label>
                     <Input
                       type="number"
                       min={0}
@@ -524,25 +804,15 @@ export default function DocumentForm({ docType }: { docType: string }) {
                       value={line.taxRate}
                       onChange={(e) => patchLine(line.key, { taxRate: Number(e.target.value) })}
                     />
-                  </td>
-                  <td className="px-3 py-2 text-right font-medium">
-                    {line.name ? formatCurrency(lt?.total ?? 0) : '—'}
-                  </td>
-                  <td className="px-3 py-2">
-                    <button
-                      className="rounded p-1 text-slate-300 hover:text-red-500"
-                      onClick={() => removeLine(line.key)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
         <div className="border-t border-slate-100 p-3 dark:border-slate-800">
-          <Button variant="outline" onClick={addLine}>
+          <Button variant="outline" onClick={addLine} className="w-full sm:w-auto justify-center">
             <Plus className="h-4 w-4" /> Add Row <span className="text-xs text-slate-400">(Enter)</span>
           </Button>
         </div>
@@ -646,18 +916,56 @@ export default function DocumentForm({ docType }: { docType: string }) {
       </div>
 
       {/* Sticky action bar */}
-      <div className="sticky bottom-0 mt-6 flex flex-wrap items-center justify-end gap-2 rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-soft backdrop-blur dark:border-slate-800 dark:bg-slate-900/90">
-        <span className="mr-auto text-sm text-slate-500">
-          Total: <strong className="text-slate-800 dark:text-slate-100">{formatCurrency(totals.grandTotal)}</strong>
-          <kbd className="ml-3 hidden rounded border border-slate-300 px-1.5 text-xs sm:inline dark:border-slate-600">Alt+S</kbd>
-        </span>
-        <Button variant="outline" onClick={() => save(true)} disabled={saving || locked}>
-          <Save className="h-4 w-4" /> Save Draft
-        </Button>
-        <Button onClick={() => save(false)} loading={saving} disabled={locked}>
-          <FileCheck className="h-4 w-4" /> Save {meta.title}
-        </Button>
+      <div className="sticky bottom-0 z-40 mt-4 sm:mt-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 rounded-xl sm:rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-xl backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
+        <div className="flex items-center justify-between sm:mr-auto">
+          <span className="text-xs sm:text-sm text-slate-500">
+            Total: <strong className="text-sm sm:text-base text-slate-800 dark:text-slate-100">{formatCurrency(totals.grandTotal)}</strong>
+          </span>
+          <kbd className="hidden rounded border border-slate-300 px-1.5 text-xs sm:inline dark:border-slate-600">Alt+S</kbd>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => save(true)} disabled={saving || locked} className="flex-1 sm:flex-none justify-center">
+            <Save className="h-4 w-4" /> Save Draft
+          </Button>
+          <Button onClick={() => save(false)} loading={saving} disabled={locked} className="flex-1 sm:flex-none justify-center">
+            <FileCheck className="h-4 w-4" /> Save {meta.title}
+          </Button>
+        </div>
       </div>
+
+      {/* AI Voice Order Modal */}
+      <Modal
+        open={voiceOpen}
+        onClose={() => setVoiceOpen(false)}
+        title="🎙️ AI Voice & Text Fast Billing"
+        size="md"
+      >
+        <div className="space-y-4">
+          <p className="text-xs text-slate-500">
+            Speak or type invoice items (e.g. <em>"2 bags Wheat Atta 10kg at 450, 5 bottles Mustard Oil at 160"</em>).
+          </p>
+          <Textarea
+            rows={4}
+            value={voiceTranscript}
+            onChange={(e) => setVoiceTranscript(e.target.value)}
+            placeholder="Type or speak invoice items..."
+            autoFocus
+          />
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setVoiceOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleParseVoice}
+              disabled={voiceLoading || !voiceTranscript.trim()}
+              className="bg-brand-gradient text-white"
+            >
+              {voiceLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              <span>Extract & Add Items</span>
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

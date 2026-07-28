@@ -18,9 +18,9 @@ declare global {
 const PLAN_CATALOG = [
   {
     id: 'free',
-    name: 'Free Trial',
-    price: '₹0',
-    period: 'Forever',
+    name: 'Starter Plan',
+    price: '₹299',
+    period: 'per month',
     features: ['50 invoices / month', '2 team members', '1 company', 'Standard PDF Printing'],
     popular: false,
   },
@@ -157,7 +157,7 @@ export default function Plan() {
         key: activeKey,
         amount: amountPaise,
         currency: 'INR',
-        name: 'PaperBolt Monogram',
+        name: 'BalajiOne Invoice',
         description: `Upgrade to ${planId.toUpperCase()} Subscription (₹${amount}/mo)`,
         image: '/logos/app_logo.jpg',
         order_id: orderId.startsWith('order_test_') ? undefined : orderId,
@@ -185,7 +185,7 @@ export default function Plan() {
         },
         prefill: {
           name: 'Business Owner',
-          email: 'billing@paperbolt.com',
+          email: 'billing@balajione.dev',
           contact: '9999999999',
         },
         theme: {
@@ -453,7 +453,7 @@ export default function Plan() {
                 </div>
                 <div>
                   <h3 className="font-extrabold text-base text-slate-900 dark:text-slate-100">Razorpay Gateway (Test Mode)</h3>
-                  <p className="text-xs text-slate-400">PaperBolt Monogram Subscription</p>
+                  <p className="text-xs text-slate-400">BalajiOne Invoice Subscription</p>
                 </div>
               </div>
               <button

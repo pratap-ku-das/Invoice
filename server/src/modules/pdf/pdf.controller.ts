@@ -69,19 +69,16 @@ export class PdfController {
     @Res() res: Response,
   ) {
     this.assertType(docType);
-    try {
-      const { buffer, filename } = await this.render.renderPdf(companyId, docType as DocType, id, q);
-      res.set({
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `inline; filename="${filename}"`,
-        'Content-Length': buffer.length,
-      });
-      return res.end(buffer);
-    } catch (err) {
-      const { html } = await this.render.buildHtml(companyId, docType as DocType, id, q);
-      res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      return res.send(html);
-    }
+    const { buffer, filename } = await this.render.renderPdf(companyId, docType as DocType, id, q);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="${filename}"`,
+      'Content-Length': buffer.length.toString(),
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+    });
+    return res.end(buffer);
   }
 
   /** Bulk download as zip */

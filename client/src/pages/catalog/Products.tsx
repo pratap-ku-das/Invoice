@@ -3,7 +3,8 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Plus, Pencil, Trash2, Package, Wand2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Package, Wand2, Sparkles } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { DataTable } from '@/components/ui/DataTable';
 import { Modal, EmptyState } from '@/components/ui/feedback';
@@ -12,6 +13,7 @@ import { useList, useCreate, useUpdate, useRemove } from '@/hooks/useCrud';
 import { api } from '@/lib/api';
 import { formatCurrency, debounce } from '@/lib/utils';
 import type { Product, Category, Unit } from '@/types';
+import { aiService } from '@/services/aiService';
 
 const productSchema = z.object({
   name: z.string().min(1, 'Product name is required'),
@@ -41,6 +43,7 @@ export default function Products() {
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState<{ open: boolean; editing?: Product }>({ open: false });
   const [confirmDelete, setConfirmDelete] = useState<Product | null>(null);
+  const [aiHsnLoading, setAiHsnLoading] = useState(false);
 
   const { data, isLoading } = useList<Product>('products', { page, limit: 20, search });
   const { data: categories } = useList<Category>('categories', { limit: 100 });
@@ -99,6 +102,24 @@ export default function Products() {
       description: p.description ?? '',
     });
     setModal({ open: true, editing: p });
+  };
+
+  const handleAiSuggestHsn = async () => {
+    if (!nameValue?.trim()) {
+      toast.error('Please enter Product Name first');
+      return;
+    }
+    setAiHsnLoading(true);
+    try {
+      const res = await aiService.suggestHsn(nameValue);
+      setValue('hsn', res.hsnCode);
+      setValue('gstRate', res.gstRate);
+      toast.success(`✨ AI predicted HSN ${res.hsnCode} (${res.gstRate}% GST)`);
+    } catch (err) {
+      toast.error('Failed to get AI recommendation');
+    } finally {
+      setAiHsnLoading(false);
+    }
   };
 
   const generateSku = async () => {
@@ -278,7 +299,20 @@ export default function Products() {
             <Input {...register('barcode')} />
           </Field>
           <Field label="HSN Code">
-            <Input {...register('hsn')} />
+            <div className="flex gap-2">
+              <Input {...register('hsn')} placeholder="e.g. 6205" />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAiSuggestHsn}
+                disabled={aiHsnLoading}
+                className="whitespace-nowrap border-brand-500/30 text-brand-600 dark:text-brand-400 hover:bg-brand-50 shrink-0"
+                title="AI Predict HSN & Tax"
+              >
+                <Sparkles className="h-4 w-4 text-brand-500 animate-pulse" />
+                <span className="text-xs font-semibold">AI Predict</span>
+              </Button>
+            </div>
           </Field>
 
           <Field label="Category">

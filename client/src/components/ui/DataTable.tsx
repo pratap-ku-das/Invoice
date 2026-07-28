@@ -58,7 +58,7 @@ export function DataTable<T>({
                   return (
                     <th
                       key={header.id}
-                      className={cn('whitespace-nowrap px-4 py-3 font-medium', sortable && 'cursor-pointer select-none')}
+                      className={cn('whitespace-nowrap px-2.5 sm:px-4 py-2 sm:py-3 font-medium', sortable && 'cursor-pointer select-none')}
                       onClick={
                         sortable
                           ? () => onSortChange!(id, sort === id && order === 'asc' ? 'desc' : 'asc')
@@ -97,7 +97,7 @@ export function DataTable<T>({
                   onClick={() => onRowClick?.(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="whitespace-nowrap px-4 py-3">
+                    <td key={cell.id} className="whitespace-nowrap px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   ))}

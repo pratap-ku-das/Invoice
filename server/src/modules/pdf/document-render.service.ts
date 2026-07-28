@@ -76,9 +76,33 @@ export class DocumentRenderService {
       upiQr = await this.barcode.upiQrDataUrl(company.upiId, company.name, doc.grandTotal, doc.number);
     }
 
+    const items = (doc as any).items || [];
+    const totalQty = items.reduce((sum: number, item: any) => sum + (Number(item.qty) || 0), 0);
+    const totalItems = items.length;
+
+    const hsnMap = new Map<string, { hsn: string; taxable: number; cgst: number; sgst: number; igst: number; taxRate: number; totalTax: number }>();
+    for (const item of items) {
+      const code = item.hsn || 'OTHERS';
+      const existing = hsnMap.get(code) || { hsn: code, taxable: 0, cgst: 0, sgst: 0, igst: 0, taxRate: item.taxRate || 0, totalTax: 0 };
+      existing.taxable += item.taxable || 0;
+      existing.cgst += item.cgst || 0;
+      existing.sgst += item.sgst || 0;
+      existing.igst += item.igst || 0;
+      existing.totalTax += (item.cgst || 0) + (item.sgst || 0) + (item.igst || 0);
+      hsnMap.set(code, existing);
+    }
+    const hsnSummary = Array.from(hsnMap.values());
+
+    const docData = {
+      ...(doc as unknown as Record<string, unknown>),
+      totalQty,
+      totalItems,
+      hsnSummary,
+    };
+
     const html = this.templates.render({
       company: company as Record<string, unknown>,
-      doc: doc as unknown as Record<string, unknown>,
+      doc: docData,
       title: TITLES[docType] ?? 'Document',
       upiQr,
       meta: { theme, paperSize, thermal },

@@ -9,7 +9,7 @@
 html,
 body,
 #root {
-  height: 100%;
+  min-height: 100%;
 }
 
 body {
@@ -20,20 +20,37 @@ body {
 
 @layer components {
   .card {
-    @apply rounded-2xl border border-slate-200/80 bg-white shadow-card
+    @apply rounded-xl sm:rounded-2xl border border-slate-200/80 bg-white shadow-card
       dark:border-slate-800 dark:bg-slate-900/70 dark:shadow-none dark:ring-1 dark:ring-white/5;
   }
   .input {
-    @apply w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm outline-none transition
-      placeholder:text-slate-400
+    @apply w-full rounded-xl border border-slate-200 bg-slate-50/70 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm outline-none transition
+      text-slate-900 placeholder:text-slate-400
       focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/15
       dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:bg-slate-900;
   }
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: #0f172a !important;
+  box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus,
+.dark input:-webkit-autofill:active {
+  -webkit-text-fill-color: #f8fafc !important;
+  box-shadow: 0 0 0px 1000px #0f172a inset !important;
+}
   .label {
-    @apply mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400;
+    @apply mb-1 block text-[11px] sm:text-xs font-medium text-slate-600 dark:text-slate-400;
   }
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium
+    @apply inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium
       transition active:scale-[.98] disabled:pointer-events-none disabled:opacity-50
       focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-500/25;
   }
@@ -50,20 +67,20 @@ body {
   }
   /* rounded tinted container giving every icon a consistent premium treatment */
   .icon-chip {
-    @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-xl
+    @apply flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg sm:rounded-xl
       bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-300;
   }
   /* sidebar section heading */
   .section-label {
-    @apply px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500;
+    @apply px-3 pb-1 pt-4 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500;
   }
   /* dropdown menu row */
   .menu-item {
-    @apply flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-slate-600 transition
+    @apply flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm text-slate-600 transition
       hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800;
   }
   .stat-card {
-    @apply card flex items-start gap-3 p-4;
+    @apply card flex items-start gap-2.5 sm:gap-3 p-3 sm:p-4;
   }
 }
 

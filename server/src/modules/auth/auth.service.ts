@@ -25,13 +25,13 @@ export class AuthService implements OnModuleInit {
 
   async onModuleInit() {
     try {
-      const adminEmail = 'admin@paperbolt.com';
+      const adminEmail = 'admin@balajione.com';
       const existing = await this.userModel.findOne({ email: adminEmail });
       if (!existing) {
         let company = await this.companyModel.findOne({ email: adminEmail });
         if (!company) {
           company = await this.companyModel.create({
-            name: 'PaperBolt Platform Administration',
+            name: 'BalajiOne Invoice Platform Administration',
             email: adminEmail,
           });
         }

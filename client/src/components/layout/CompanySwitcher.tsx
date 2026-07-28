@@ -123,7 +123,7 @@ export function CompanySwitcher() {
       <button
         onClick={() => setOpen((o) => !o)}
         disabled={switching}
-        className="flex max-w-[200px] items-center gap-2 rounded-xl border border-slate-200/90 bg-slate-50/70 px-2.5 py-1.5 text-xs font-bold shadow-xs transition hover:bg-slate-100 sm:max-w-[240px] dark:border-slate-800 dark:bg-slate-900/80 dark:hover:bg-slate-800"
+        className="flex max-w-[130px] sm:max-w-[240px] items-center gap-1.5 sm:gap-2 rounded-xl border border-slate-200/90 bg-slate-50/70 px-2 py-1 sm:px-2.5 sm:py-1.5 text-xs font-bold shadow-xs transition hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900/80 dark:hover:bg-slate-800"
       >
         <div className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-md bg-white shadow-xs border border-slate-200 dark:border-slate-800">
           {current?.logo ? (

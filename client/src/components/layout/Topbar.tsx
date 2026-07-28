@@ -10,12 +10,12 @@ import {
   UserRound,
   Gem,
   ChevronDown,
-  Building2,
+  Sparkles,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '@/store/auth';
 import { useTheme } from '@/store/theme';
-import { CompanySwitcher } from './CompanySwitcher';
+import { AiCopilotWidget } from '../ai/AiCopilotWidget';
 
 function UserMenu() {
   const { user, logout } = useAuth();
@@ -80,9 +80,6 @@ function UserMenu() {
               <button className="menu-item" onClick={() => go('/app/plan')}>
                 <Gem className="h-4 w-4" /> Plan & Billing
               </button>
-              <button className="menu-item font-semibold text-brand-600 dark:text-brand-400" onClick={() => go('/admin/companies')}>
-                <Building2 className="h-4 w-4 text-brand-600 dark:text-brand-400" /> Multi-Company Panel
-              </button>
               <button className="menu-item" onClick={toggle}>
                 {mode === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 {mode === 'dark' ? 'Light mode' : 'Dark mode'}
@@ -112,41 +109,55 @@ export function Topbar({
   notifCount?: number;
 }) {
   const navigate = useNavigate();
+  const [aiOpen, setAiOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-slate-200/80 bg-white/80 px-4 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
-      <button className="lg:hidden" onClick={onMenu} aria-label="Open menu">
-        <Menu className="h-6 w-6" />
-      </button>
-
-      <CompanySwitcher />
-
-      <button
-        onClick={onSearch}
-        className="flex flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm text-slate-400 transition hover:border-brand-400 hover:text-slate-500 md:max-w-sm dark:border-slate-700 dark:bg-slate-900"
-      >
-        <Search className="h-4 w-4" />
-        <span>Search everything...</span>
-        <kbd className="ml-auto hidden rounded-md border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-400 md:inline dark:border-slate-600 dark:bg-slate-800">
-          Ctrl K
-        </kbd>
-      </button>
-
-      <div className="ml-auto flex items-center gap-1">
-        <button
-          onClick={() => navigate('/app/notifications')}
-          className="relative rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 dark:hover:bg-slate-800"
-          aria-label="Notifications"
-        >
-          <Bell className="h-5 w-5" />
-          {notifCount > 0 && (
-            <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-              {notifCount > 9 ? '9+' : notifCount}
-            </span>
-          )}
+    <>
+      <header className="sticky top-0 z-30 flex h-14 sm:h-16 items-center gap-1.5 sm:gap-3 border-b border-slate-200/80 bg-white/80 px-2.5 sm:px-4 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
+        <button className="lg:hidden" onClick={onMenu} aria-label="Open menu">
+          <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
         </button>
-        <UserMenu />
-      </div>
-    </header>
+
+        <button
+          onClick={onSearch}
+          className="flex flex-1 items-center gap-1.5 sm:gap-2 rounded-xl border border-slate-200 bg-slate-50/70 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-slate-400 transition hover:border-brand-400 hover:text-slate-500 md:max-w-sm dark:border-slate-700 dark:bg-slate-900"
+        >
+          <Search className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          <span className="truncate">Search...</span>
+          <kbd className="ml-auto hidden rounded-md border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-400 md:inline dark:border-slate-600 dark:bg-slate-800">
+            Ctrl K
+          </kbd>
+        </button>
+
+        <div className="ml-auto flex items-center gap-1 sm:gap-2">
+          {/* AI Copilot Action Button */}
+          <button
+            onClick={() => setAiOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-brand-500/30 bg-gradient-to-r from-brand-500/10 to-purple-500/10 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-brand-600 dark:text-brand-300 hover:from-brand-500/20 hover:to-purple-500/20 transition shadow-xs"
+            title="Open BalajiOne AI Copilot"
+          >
+            <Sparkles className="h-3.5 w-3.5 text-brand-500 dark:text-brand-400 animate-pulse" />
+            <span className="hidden sm:inline">AI Copilot</span>
+          </button>
+
+          <button
+            onClick={() => navigate('/app/notifications')}
+            className="relative rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 dark:hover:bg-slate-800"
+            aria-label="Notifications"
+          >
+            <Bell className="h-5 w-5" />
+            {notifCount > 0 && (
+              <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                {notifCount > 9 ? '9+' : notifCount}
+              </span>
+            )}
+          </button>
+
+          <UserMenu />
+        </div>
+      </header>
+
+      <AiCopilotWidget open={aiOpen} onClose={() => setAiOpen(false)} />
+    </>
   );
 }

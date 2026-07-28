@@ -23,7 +23,6 @@ export default function Login() {
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
@@ -60,7 +59,7 @@ export default function Login() {
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-brand-500/30 bg-brand-500/10 px-4 py-1.5 text-xs font-bold text-brand-300 backdrop-blur-md w-fit">
             <Sparkles className="h-4 w-4 text-brand-400" />
-            <span>PaperBolt Enterprise SaaS Suite v2.0</span>
+            <span>BalajiOne Invoice Enterprise SaaS Suite v2.0</span>
           </div>
 
           <h1 className="text-4xl md:text-5xl font-black tracking-tight leading-tight text-white">
@@ -147,7 +146,7 @@ export default function Login() {
                   type="email"
                   placeholder="you@business.com"
                   {...register('email')}
-                  className="bg-slate-950/60 border-white/10 text-white placeholder-slate-500 focus:border-brand-500"
+                  className="bg-white text-slate-900 border-slate-300 focus:bg-white focus:border-brand-500 font-medium placeholder-slate-400 dark:bg-slate-900 dark:text-white dark:border-slate-700"
                 />
               </Field>
 
@@ -156,7 +155,7 @@ export default function Login() {
                   type="password"
                   placeholder="••••••••"
                   {...register('password')}
-                  className="bg-slate-950/60 border-white/10 text-white placeholder-slate-500 focus:border-brand-500"
+                  className="bg-white text-slate-900 border-slate-300 focus:bg-white focus:border-brand-500 font-medium placeholder-slate-400 dark:bg-slate-900 dark:text-white dark:border-slate-700"
                 />
               </Field>
 
@@ -165,20 +164,7 @@ export default function Login() {
               </Button>
             </form>
 
-            {/* Quick 1-Click Super Admin Auto-Fill */}
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setValue('email', 'admin@paperbolt.com');
-                  setValue('password', 'Admin@123');
-                }}
-                className="w-full rounded-xl border border-brand-500/30 bg-brand-500/10 py-2.5 px-3 text-xs font-bold text-brand-300 hover:bg-brand-500/20 transition flex items-center justify-center gap-2"
-              >
-                <Sparkles className="h-4 w-4 text-brand-400" />
-                Fill Super Admin Login (admin@paperbolt.com)
-              </button>
-            </div>
+
 
             {/* Multi-Company Management Direct Control Button */}
             <div className="pt-3 border-t border-white/10 space-y-3">

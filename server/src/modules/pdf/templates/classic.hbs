@@ -2,9 +2,11 @@
   <div style="border: 2px solid #374151; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #374151; padding-bottom: 12px;">
       <div>
+        {{#if company.logo}}<img src="{{company.logo}}" alt="logo" class="company-logo" style="margin-bottom: 6px;" />{{/if}}
         <div style="font-size: 20px; font-weight: 800; color: #111827;">{{company.name}}</div>
-        <div class="muted">{{company.address.line1}} {{company.address.line2}}, {{company.address.city}}</div>
+        <div class="muted">{{formatAddress company.address}}</div>
         {{#if company.gstin}}<div class="muted">GSTIN: {{company.gstin}}</div>{{/if}}
+        <div class="muted">{{formatContactLine company.phone company.email}}</div>
       </div>
       <div class="right">
         <div style="font-size: 24px; font-weight: 800; color: #111827;">{{upper title}}</div>

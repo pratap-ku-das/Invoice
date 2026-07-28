@@ -17,12 +17,14 @@ export class SubscriptionService {
     private readonly companyModel: Model<CompanyDocument>,
   ) {}
 
-  async createOrder(companyId: string, userId: string, plan: 'basic' | 'pro', billingCycle = 'monthly') {
-    if (!['basic', 'pro'].includes(plan)) {
-      throw new BadRequestException('Invalid subscription plan. Select Basic (₹499) or Pro (₹999).');
+  async createOrder(companyId: string, userId: string, plan: 'starter' | 'free' | 'basic' | 'pro', billingCycle = 'monthly') {
+    if (!['starter', 'free', 'basic', 'pro'].includes(plan)) {
+      throw new BadRequestException('Invalid subscription plan. Select Starter (₹299), Basic (₹499) or Pro (₹999).');
     }
 
     const planPrices: Record<string, number> = {
+      starter: 299,
+      free: 299,
       basic: 499,
       pro: 999,
     };
@@ -68,7 +70,7 @@ export class SubscriptionService {
             amount: amountPaise,
             currency: 'INR',
             accept_partial: false,
-            description: `PaperBolt Monogram ${plan.toUpperCase()} Plan Subscription`,
+            description: `BalajiOne Invoice ${plan.toUpperCase()} Plan Subscription`,
             callback_url: `https://invoice.balajione.dev/app/settings/plan?razorpay_status=success&plan=${plan}`,
             callback_method: 'get',
           }),
