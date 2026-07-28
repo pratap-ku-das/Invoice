@@ -12,12 +12,23 @@ export interface AppUpdateInfo {
   releaseDate?: string;
 }
 
+function isMobileOrAndroidApp(): boolean {
+  if (typeof window === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  const isAndroid = /android/i.test(ua);
+  const isMobile = /iphone|ipad|ipod|android|blackberry|mini|windows\sce|palm/i.test(ua);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+  return isAndroid || (isMobile && isStandalone);
+}
+
 export function AppUpdateModal() {
   const [updateInfo, setUpdateInfo] = useState<AppUpdateInfo | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
+    if (!isMobileOrAndroidApp()) return;
+
     let isMounted = true;
 
     async function checkAppUpdate() {
