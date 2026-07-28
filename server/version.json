@@ -1,12 +1,13 @@
 {
-  "latestVersion": "1.0.2",
-  "downloadUrl": "https://invoice.balajione.dev/download/invoice-v1.0.2.apk",
+  "latestVersion": "1.0.3",
+  "downloadUrl": "https://invoice.balajione.dev/download/invoice-v1.0.3.apk",
   "forceUpdate": false,
-  "message": "New performance updates and invoice bug fixes are now available.",
+  "message": "Next-Gen AI Copilot, Vector PDF Engine & Performance Improvements.",
   "whatsNew": [
-    "Faster dashboard loading & optimized sync",
-    "Invoice PDF print layout improvements",
-    "General stability & minor bug fixes"
+    "Gemini 1.5 AI Copilot with real-time financial Q&A",
+    "Professional Vyapar PDF Invoice Engine & Vector Previewer",
+    "Smart table context menus with zero container clipping",
+    "General stability & logo branding updates"
   ],
-  "releaseDate": "2026-07-27"
+  "releaseDate": "2026-07-28"
 }
