@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { join } from 'path';
+import * as fs from 'fs';
 import * as dns from 'dns';
 
 try {
@@ -41,8 +42,11 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: false }),
   );
-  app.useGlobalFilters(new HttpExceptionFilter());
   app.useStaticAssets(join(process.cwd(), env.UPLOAD_DIR), { prefix: '/uploads' });
+  const clientDist = join(process.cwd(), 'client', 'dist');
+  if (fs.existsSync(clientDist)) {
+    app.useStaticAssets(clientDist);
+  }
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Invoice Management System API')
