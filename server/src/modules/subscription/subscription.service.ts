@@ -2,9 +2,14 @@ import { Injectable, BadRequestException, NotFoundException, Logger } from '@nes
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import * as crypto from 'crypto';
+import * as dotenv from 'dotenv';
 import { SubscriptionPayment, SubscriptionPaymentDocument } from './subscription-payment.schema';
 import { Company, CompanyDocument } from '../company/company.schema';
+import { User, UserDocument } from '../users/user.schema';
+import { BusinessDocument, BusinessDocumentDocument } from '../documents/document.schema';
 import { PLANS, type PlanId } from '../../common/constants/plans';
+
+dotenv.config();
 
 @Injectable()
 export class SubscriptionService {
@@ -15,6 +20,10 @@ export class SubscriptionService {
     private readonly paymentModel: Model<SubscriptionPaymentDocument>,
     @InjectModel(Company.name)
     private readonly companyModel: Model<CompanyDocument>,
+    @InjectModel(User.name)
+    private readonly userModel: Model<UserDocument>,
+    @InjectModel(BusinessDocument.name)
+    private readonly docModel: Model<BusinessDocumentDocument>,
   ) {}
 
   async createOrder(companyId: string, userId: string, plan: 'starter' | 'free' | 'basic' | 'pro', billingCycle = 'monthly') {
@@ -57,9 +66,13 @@ export class SubscriptionService {
         const orderData = await res.json();
         if (orderData.id) {
           razorpayOrderId = orderData.id;
+          this.logger.log(`Created Razorpay Order: ${orderData.id}`);
+        } else {
+          this.logger.warn(`Razorpay Order creation response: ${JSON.stringify(orderData)}`);
         }
 
         // Try creating Razorpay Payment Link for direct URL redirection
+        const clientOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
         const linkRes = await fetch('https://api.razorpay.com/v1/payment_links', {
           method: 'POST',
           headers: {
@@ -71,13 +84,25 @@ export class SubscriptionService {
             currency: 'INR',
             accept_partial: false,
             description: `BalajiOne Invoice ${plan.toUpperCase()} Plan Subscription`,
-            callback_url: `https://invoice.balajione.dev/app/settings/plan?razorpay_status=success&plan=${plan}`,
+            customer: {
+              name: 'Subscriber',
+              email: 'billing@balajione.dev',
+              contact: '9999999999',
+            },
+            notify: {
+              sms: false,
+              email: false,
+            },
+            callback_url: `${clientOrigin}/app/plan?razorpay_status=success&plan=${plan}`,
             callback_method: 'get',
           }),
         });
         const linkData = await linkRes.json();
         if (linkData.short_url) {
           paymentLinkUrl = linkData.short_url;
+          this.logger.log(`Created Razorpay Payment Link: ${linkData.short_url}`);
+        } else {
+          this.logger.warn(`Razorpay Payment Link creation response: ${JSON.stringify(linkData)}`);
         }
       } catch (err) {
         this.logger.warn(`Razorpay API call failed, using fallback order ID: ${(err as Error).message}`);
@@ -173,6 +198,8 @@ export class SubscriptionService {
       expiresAt,
       limits: { ...planConfig.limits },
     };
+    company.approvalStatus = 'approved';
+    company.isApproved = true;
 
     await company.save();
 
@@ -199,6 +226,27 @@ export class SubscriptionService {
     const planId = (company.subscription?.plan || 'free') as PlanId;
     const planConfig = PLANS[planId] || PLANS.free;
 
+    // Compute live monthly usage stats
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const invoicesThisMonth = await this.docModel.countDocuments({
+      companyId: new Types.ObjectId(companyId),
+      docType: 'invoice',
+      createdAt: { $gte: startOfMonth },
+    });
+
+    const userCount = await this.userModel.countDocuments({
+      companyId: new Types.ObjectId(companyId),
+      isActive: { $ne: false },
+    });
+
+    let companiesCount = 1;
+    if (company.ownerId) {
+      companiesCount = await this.companyModel.countDocuments({ ownerId: company.ownerId });
+    }
+
     return {
       plan: planId,
       planName: planId === 'pro' ? 'Pro Plan' : planId === 'basic' ? 'Basic Plan' : 'Free Trial',
@@ -206,9 +254,9 @@ export class SubscriptionService {
       expiresAt: company.subscription?.expiresAt,
       limits: company.subscription?.limits || planConfig.limits,
       usage: {
-        invoicesThisMonth: 12,
-        users: 1,
-        companiesOwned: 1,
+        invoicesThisMonth,
+        users: Math.max(1, userCount),
+        companiesOwned: Math.max(1, companiesCount),
       },
       paymentsHistory: payments.map((p) => ({
         id: String(p._id),

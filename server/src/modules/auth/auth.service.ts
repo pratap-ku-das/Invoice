@@ -33,7 +33,14 @@ export class AuthService implements OnModuleInit {
           company = await this.companyModel.create({
             name: 'BalajiOne Invoice Platform Administration',
             email: adminEmail,
+            approvalStatus: 'approved',
+            isApproved: true,
           });
+        } else {
+          await this.companyModel.updateOne(
+            { _id: company._id },
+            { $set: { approvalStatus: 'approved', isApproved: true } },
+          );
         }
         await this.userModel.create({
           name: 'System Super Admin',
@@ -43,8 +50,13 @@ export class AuthService implements OnModuleInit {
           companyId: company._id,
         });
       }
-    } catch (e) {
-      // Ignore initial seed error
+      // Ensure all legacy companies without approvalStatus are set to approved
+      await this.companyModel.updateMany(
+        { approvalStatus: { $exists: false } },
+        { $set: { approvalStatus: 'approved', isApproved: true } },
+      );
+    } catch {
+      /* ignore init errors */
     }
   }
 
@@ -57,6 +69,8 @@ export class AuthService implements OnModuleInit {
       gstin: dto.gstin,
       phone: dto.phone,
       email: dto.email,
+      approvalStatus: 'pending',
+      isApproved: false,
     });
 
     const user = await this.userModel.create({

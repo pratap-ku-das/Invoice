@@ -184,7 +184,7 @@ export default function LandingPage() {
           {/* Logo */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <div className="flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center overflow-hidden rounded-xl sm:rounded-2xl bg-white shadow-md border border-slate-200 dark:border-slate-800 shrink-0">
-              <img src="/logos/app_logo.jpg" alt="BalajiOne Invoice Logo" className="h-full w-full object-contain p-0.5" />
+              <img src="/logos/app_logo.png?v=2.0" alt="BalajiOne Invoice Logo" className="h-full w-full object-contain p-0.5" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-base sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-brand-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent whitespace-nowrap">
@@ -706,7 +706,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-6 flex flex-col items-center justify-between gap-6 sm:flex-row">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-white shadow-xs border border-slate-200 dark:border-slate-800">
-              <img src="/logos/app_logo.jpg" alt="BalajiOne Enterprises Logo" className="h-full w-full object-contain p-0.5" />
+              <img src="/logos/app_logo.png?v=2.0" alt="BalajiOne Enterprises Logo" className="h-full w-full object-contain p-0.5" />
             </div>
             <span className="text-lg font-extrabold bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">
               BalajiOne Enterprises

@@ -65,6 +65,7 @@ const Settings = lazyRetry(() => import('@/pages/settings/Settings'));
 const PrintSettings = lazyRetry(() => import('@/pages/settings/PrintSettings'));
 const Plan = lazyRetry(() => import('@/pages/settings/Plan'));
 const Notifications = lazyRetry(() => import('@/pages/notifications/Notifications'));
+const CompanySupport = lazyRetry(() => import('@/pages/support/CompanySupport'));
 
 const PlatformNotifications = lazyRetry(() => import('@/pages/platform/PlatformNotifications').then(m => ({ default: m.PlatformNotifications })));
 const PlatformReleases = lazyRetry(() => import('@/pages/platform/PlatformReleases').then(m => ({ default: m.PlatformReleases })));
@@ -138,6 +139,7 @@ const appChildren = [
   { path: 'print-settings', element: <PrintSettings /> },
   { path: 'plan', element: <Plan /> },
   { path: 'notifications', element: <Notifications /> },
+  { path: 'support', element: <CompanySupport /> },
 ];
 
 // Dedicated Platform Admin Control Panel Routes

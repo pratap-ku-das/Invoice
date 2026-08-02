@@ -9,7 +9,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'logos/app_logo.jpg', 'robots.txt', 'sitemap.xml'],
+      includeAssets: ['favicon.svg', 'logos/app_logo.png', 'logos/app_logo.jpg', 'robots.txt', 'sitemap.xml'],
       manifest: {
         name: 'BalajiOne Invoice - Smart AI GST Billing Platform',
         short_name: 'BalajiOne Invoice',
@@ -40,6 +40,8 @@ export default defineConfig({
         ],
       },
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [
           {

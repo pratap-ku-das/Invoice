@@ -9,6 +9,7 @@ import {
   Settings,
   ShieldAlert,
   User,
+  Bell,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -55,6 +56,8 @@ export const PLATFORM_NAV: PlatformNavSection[] = [
     section: 'Analytics & System',
     items: [
       { label: 'Platform Analytics', to: '/admin/analytics', icon: BarChart3 },
+      { label: 'Push Notifications', to: '/admin/notifications', icon: Bell },
+      { label: 'App Releases', to: '/admin/releases', icon: Gem },
       { label: 'System Settings', to: '/admin/system', icon: Settings },
       { label: 'Audit & Activity Logs', to: '/admin/audit-logs', icon: ShieldAlert },
     ],

@@ -122,6 +122,12 @@ export class Company {
 
   @Prop({ default: false }) isOnboardingCompleted: boolean;
   @Prop({ default: 1 }) onboardingStep: number;
+
+  @Prop({ type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' })
+  approvalStatus: 'pending' | 'approved' | 'rejected';
+
+  @Prop({ default: false })
+  isApproved: boolean;
 }
 
 export const CompanySchema = SchemaFactory.createForClass(Company);

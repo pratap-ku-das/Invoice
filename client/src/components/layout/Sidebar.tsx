@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { NAV, type NavItem } from '@/config/nav';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/store/auth';
 
 function Leaf({ item, onNavigate }: { item: NavItem; onNavigate?: () => void }) {
   const Icon = item.icon;
@@ -27,11 +28,21 @@ function Leaf({ item, onNavigate }: { item: NavItem; onNavigate?: () => void }) 
 }
 
 export function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; onClose: () => void }) {
+  const { user } = useAuth();
+  const isSuperAdmin = user?.role === 'super_admin' || user?.role === 'platform_owner';
+
+  const navSections = NAV.filter((sec) => {
+    if (sec.section === 'Platform Admin' && !isSuperAdmin) {
+      return false;
+    }
+    return true;
+  });
+
   const content = (
     <div className="flex h-full flex-col">
       <div className="flex h-16 items-center gap-2.5 px-5 border-b border-slate-100 dark:border-slate-800/60">
         <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white shadow-xs border border-slate-200 dark:border-slate-800">
-          <img src="/logos/app_logo.jpg" alt="Logo" className="h-full w-full object-contain p-0.5" />
+          <img src="/logos/app_logo.png?v=2.0" alt="Logo" className="h-full w-full object-contain p-0.5" />
         </div>
         <div className="leading-tight">
           <div className="text-[15px] font-extrabold tracking-tight bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">
@@ -46,7 +57,7 @@ export function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; onClose:
         </button>
       </div>
       <nav className="flex-1 overflow-y-auto px-3 pb-6 no-scrollbar">
-        {NAV.map((section) => (
+        {navSections.map((section) => (
           <div key={section.section}>
             <div className="section-label">{section.section}</div>
             <div className="space-y-0.5">

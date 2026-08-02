@@ -109,7 +109,7 @@ export class AdminService {
 
   async updateCompanySubscription(
     companyId: string,
-    dto: { plan?: PlanId; status?: string; expiresAt?: Date | null },
+    dto: { plan?: PlanId; status?: string; expiresAt?: Date | null; approvalStatus?: 'pending' | 'approved' | 'rejected' },
   ) {
     const company = await this.companyModel.findById(companyId);
     if (!company) throw new NotFoundException('Company not found');
@@ -117,6 +117,10 @@ export class AdminService {
     if (dto.plan) company.subscription.plan = dto.plan;
     if (dto.status) company.subscription.status = dto.status;
     if (dto.expiresAt !== undefined) company.subscription.expiresAt = dto.expiresAt ? new Date(dto.expiresAt) : undefined;
+    if (dto.approvalStatus) {
+      company.approvalStatus = dto.approvalStatus;
+      company.isApproved = dto.approvalStatus === 'approved';
+    }
 
     await company.save();
     return company;

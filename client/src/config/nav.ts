@@ -24,6 +24,7 @@ import {
   PieChart,
   Gem,
   Bell,
+  LifeBuoy,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -93,13 +94,14 @@ export const NAV: NavSection[] = [
       { label: 'Print Settings', to: '/app/print-settings', icon: Printer },
       { label: 'Settings', to: '/app/settings', icon: Settings },
       { label: 'Plan & Billing', to: '/app/plan', icon: Gem },
+      { label: 'Help & Support', to: '/app/support', icon: LifeBuoy },
     ],
   },
   {
     section: 'Platform Admin',
     items: [
-      { label: 'Push Notifications', to: '/platform/notifications', icon: Bell },
-      { label: 'App Releases', to: '/platform/releases', icon: Gem },
+      { label: 'Push Notifications', to: '/admin/notifications', icon: Bell },
+      { label: 'App Releases', to: '/admin/releases', icon: Gem },
     ],
   },
 ];

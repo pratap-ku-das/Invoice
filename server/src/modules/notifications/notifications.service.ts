@@ -5,6 +5,7 @@ import { Notification, NotificationDocument } from './notification.schema';
 import { NotificationLog, NotificationLogDocument } from './schemas/notification-log.schema';
 import { BusinessDocument } from '../documents/document.schema';
 import { Product } from '../catalog/product.schema';
+import { Company, CompanyDocument } from '../company/company.schema';
 import { FcmService } from './fcm.service';
 import { DevicesService } from '../devices/devices.service';
 
@@ -26,6 +27,7 @@ export class NotificationsService {
     @InjectModel(NotificationLog.name) private logModel: Model<NotificationLogDocument>,
     @InjectModel(BusinessDocument.name) private docModel: Model<BusinessDocument>,
     @InjectModel(Product.name) private productModel: Model<Product>,
+    @InjectModel(Company.name) private companyModel: Model<CompanyDocument>,
     private readonly fcmService: FcmService,
     private readonly devicesService: DevicesService,
   ) {}
@@ -60,7 +62,7 @@ export class NotificationsService {
     return { ok: true };
   }
 
-  /** Send Push Broadcast to FCM devices */
+  /** Send Push Broadcast to FCM devices + Save in-app notifications for registered companies */
   async sendBroadcastNotification(senderId: string, dto: SendBroadcastDto) {
     const tokens = await this.devicesService.getTokensByTarget(dto.targetType, dto.targetId);
 
@@ -71,6 +73,34 @@ export class NotificationsService {
       category: dto.category || 'transaction',
       actionUrl: dto.actionUrl || '/app/dashboard',
     });
+
+    // Create in-app Notification records in MongoDB for target company dashboards
+    try {
+      let targetCompanyIds: Types.ObjectId[] = [];
+      if (dto.targetType === 'company' && dto.targetId && Types.ObjectId.isValid(dto.targetId)) {
+        targetCompanyIds = [new Types.ObjectId(dto.targetId)];
+      } else {
+        const companies = await this.companyModel.find({}, { _id: 1 }).lean();
+        targetCompanyIds = companies.map((c) => c._id);
+      }
+
+      if (targetCompanyIds.length > 0) {
+        const inAppDocs = targetCompanyIds.map((cId) => ({
+          companyId: cId,
+          type: 'system' as const,
+          title: dto.title,
+          body: dto.body,
+          level: 'info' as const,
+          link: dto.actionUrl || '/app/dashboard',
+          read: false,
+          dedupeKey: `broadcast_${Date.now()}_${cId}_${Math.random().toString(36).substring(2, 6)}`,
+        }));
+        await this.model.insertMany(inAppDocs);
+        this.logger.log(`Created ${inAppDocs.length} in-app notification records for broadcast.`);
+      }
+    } catch (err: any) {
+      this.logger.warn(`Failed writing in-app notifications: ${err.message}`);
+    }
 
     const status =
       fcmRes.failedCount === 0

@@ -28,6 +28,7 @@ import { AiModule } from './modules/ai/ai.module';
 import { DevicesModule } from './modules/devices/devices.module';
 import { ReleasesModule } from './modules/releases/releases.module';
 import { BackupModule } from './modules/backup/backup.module';
+import { SupportModule } from './modules/support/support.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { BackupModule } from './modules/backup/backup.module';
     DevicesModule,
     ReleasesModule,
     BackupModule,
+    SupportModule,
   ],
   providers: [
     // JWT auth is global; individual routes opt out with @Public()

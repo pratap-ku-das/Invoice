@@ -23,6 +23,8 @@ interface CompanyAdminItem {
   gstin?: string;
   phone?: string;
   email?: string;
+  approvalStatus?: string;
+  isApproved?: boolean;
   createdAt: string;
   subscription?: {
     plan?: 'free' | 'basic' | 'pro';
@@ -79,8 +81,8 @@ export default function CompaniesManagement() {
 
   // Update Plan Mutation
   const updateMutation = useMutation({
-    mutationFn: async ({ id, plan, status }: { id: string; plan: string; status: string }) => {
-      return (await api.patch(`/admin/companies/${id}`, { plan, status })).data;
+    mutationFn: async ({ id, plan, status, approvalStatus }: { id: string; plan?: string; status?: string; approvalStatus?: string }) => {
+      return (await api.patch(`/admin/companies/${id}`, { plan, status, approvalStatus })).data;
     },
     onSuccess: () => {
       toast.success('Company subscription updated successfully!');
@@ -319,9 +321,16 @@ export default function CompaniesManagement() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <Badge tone={planBadgeTone(comp.subscription?.plan || 'free')}>
-                        {(comp.subscription?.plan || 'free').toUpperCase()}
-                      </Badge>
+                      <div className="space-y-1">
+                        <Badge tone={planBadgeTone(comp.subscription?.plan || 'free')}>
+                          {(comp.subscription?.plan || 'free').toUpperCase()}
+                        </Badge>
+                        <div>
+                          <Badge tone={comp.approvalStatus === 'approved' || comp.isApproved ? 'green' : 'amber'}>
+                            {comp.approvalStatus === 'approved' || comp.isApproved ? 'APPROVED' : 'PENDING APPROVAL'}
+                          </Badge>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <Badge tone={statusBadgeTone(comp.subscription?.status || 'active')}>
@@ -333,6 +342,22 @@ export default function CompaniesManagement() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
+                        {comp.approvalStatus !== 'approved' && !comp.isApproved && (
+                          <Button
+                            onClick={() =>
+                              updateMutation.mutate({
+                                id: comp.id,
+                                plan: comp.subscription?.plan || 'pro',
+                                status: 'active',
+                                approvalStatus: 'approved',
+                              })
+                            }
+                            loading={updateMutation.isPending}
+                            className="h-8 px-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
+                          >
+                            ✓ Approve Company
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
                           onClick={() => impersonateMutation.mutate(comp.id)}

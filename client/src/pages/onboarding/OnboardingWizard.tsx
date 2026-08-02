@@ -108,7 +108,7 @@ export default function OnboardingWizard() {
     businessType: 'Proprietorship',
     industry: 'Retail',
     description: '',
-    logo: '/logos/app_logo.jpg',
+    logo: '/logos/app_logo.png',
 
     // Step 3: GST & Tax
     hasGst: false,
@@ -346,7 +346,7 @@ export default function OnboardingWizard() {
         <div className="mx-auto flex max-w-5xl items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white shadow-xs border border-slate-200 dark:border-slate-800">
-              <img src="/logos/app_logo.jpg" alt="Logo" className="h-full w-full object-contain p-0.5" />
+              <img src="/logos/app_logo.png" alt="Logo" className="h-full w-full object-contain p-0.5" />
             </div>
             <div>
               <span className="text-lg font-extrabold bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">
