@@ -15,11 +15,17 @@
     "build:server": "node server/scripts/install-chrome.js && npm run build -w server",
     "start:server": "node server/dist/main.js",
     "deploy": "npm run build -w client && node -e \"require('fs').copyFileSync('client/dist/index.html', 'client/dist/404.html')\" && gh-pages -d client/dist",
+    "electron:dev": "concurrently \"npm run dev:client\" \"electron electron/main.js\"",
+    "electron:build": "npm run build -w client && electron-builder --config electron-builder.json",
+    "android:sync": "npm run build -w client && cd client && npx cap sync android",
+    "android:build": "npm run android:sync && cd client/android && ./gradlew assembleDebug",
     "test": "npm run test -w server && npm run test -w client",
     "lint": "npm run lint -w server && npm run lint -w client"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8",
     "gh-pages": "^6.3.0"
   },
   "engines": {

@@ -1,0 +1,28 @@
+{
+  "appId": "dev.balajione.invoice",
+  "productName": "BalajiOne ERP",
+  "copyright": "Copyright © 2026 BalajiOne Enterprises",
+  "directories": {
+    "output": "dist-electron"
+  },
+  "files": [
+    "electron/**/*",
+    "client/dist/**/*"
+  ],
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "client/public/favicon.svg"
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "BalajiOne ERP"
+  }
+}
