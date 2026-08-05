@@ -5,7 +5,9 @@ import { Clock, ShieldAlert, CreditCard, RefreshCw } from 'lucide-react';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { GlobalSearch } from './GlobalSearch';
-import { MobileBottomNav } from './MobileBottomNav';
+import { MobileTopAppBar } from '@/mobile/navigation/MobileTopAppBar';
+import { MobileBottomNavM3 } from '@/mobile/navigation/MobileBottomNavM3';
+import { MobileNavDrawer } from '@/mobile/navigation/MobileNavDrawer';
 import { PWAInstallBanner } from '@/components/pwa/PWAInstallBanner';
 import { AppUpdateModal } from '@/components/update/AppUpdateModal';
 import { useAuth } from '@/store/auth';
@@ -32,6 +34,7 @@ export function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
   const { data: notif } = useQuery({
@@ -76,13 +79,25 @@ export function AppLayout() {
 
   return (
     <div className="flex h-screen h-[100dvh] w-screen overflow-hidden">
+      {/* Desktop Navigation System (hidden on small screens / mobile viewports) */}
       <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <Topbar
-          onMenu={() => setMobileOpen(true)}
-          onSearch={() => setSearchOpen(true)}
-          notifCount={notif?.count ?? 0}
+        {/* Desktop Topbar */}
+        <div className="hidden lg:block">
+          <Topbar
+            onMenu={() => setMobileOpen(true)}
+            onSearch={() => setSearchOpen(true)}
+            notifCount={notif?.count ?? 0}
+          />
+        </div>
+
+        {/* Material Design 3 Mobile Top App Bar */}
+        <MobileTopAppBar
+          companyName={company?.name}
+          unreadNotifications={notif?.count ?? 0}
+          onOpenDrawer={() => setMobileDrawerOpen(true)}
         />
+
         <main className="min-w-0 flex-1 overflow-y-auto pb-24 lg:pb-0">
           {isPendingApproval && !isAllowedPath ? (
             <div className="flex min-h-[85vh] flex-col items-center justify-center p-6 text-center font-sans">
@@ -143,7 +158,17 @@ export function AppLayout() {
         </main>
       </div>
       <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
-      <MobileBottomNav />
+
+      {/* Material Design 3 Mobile Navigation Bar */}
+      <MobileBottomNavM3 onOpenDrawer={() => setMobileDrawerOpen(true)} />
+
+      {/* Material Design 3 Mobile Navigation Drawer */}
+      <MobileNavDrawer
+        open={mobileDrawerOpen}
+        onClose={() => setMobileDrawerOpen(false)}
+        companyName={company?.name}
+      />
+
       <PWAInstallBanner />
       <AppUpdateModal />
     </div>
