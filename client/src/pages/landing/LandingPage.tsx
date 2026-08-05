@@ -223,6 +223,14 @@ export default function LandingPage() {
               Pricing
             </a>
             <a
+              href="/api/releases/latest?platform=android"
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1.5 text-sm font-bold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+            >
+              <Zap className="h-4 w-4" /> Download Android App (APK)
+            </a>
+            <a
               href="http://localhost:3000/api/docs"
               target="_blank"
               rel="noreferrer"
