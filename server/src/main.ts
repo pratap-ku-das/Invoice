@@ -56,8 +56,12 @@ async function bootstrap() {
     .build();
   SwaggerModule.setup('api/docs', app, SwaggerModule.createDocument(app, swaggerConfig));
 
-  const port = process.env.PORT || env.PORT;
+  const port = Number(process.env.PORT) || env.PORT || 10000;
   await app.listen(port, '0.0.0.0');
   console.log(`Server listening on port ${port}`);
 }
-bootstrap();
+
+bootstrap().catch((err) => {
+  console.error('FATAL SERVER BOOTSTRAP ERROR:', err);
+  process.exit(1);
+});

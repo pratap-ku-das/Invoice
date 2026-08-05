@@ -42,9 +42,16 @@ import { SupportModule } from './modules/support/support.module';
         redact: ['req.headers.authorization', 'req.headers.cookie'],
       },
     }),
-    MongooseModule.forRoot(process.env.MONGODB_URI || process.env.MONGO_URI || env.MONGO_URI, {
-      serverSelectionTimeoutMS: 5000,
-    }),
+    MongooseModule.forRoot(
+      process.env.MONGODB_URI ||
+        process.env.MONGO_URI ||
+        env.MONGODB_URI ||
+        env.MONGO_URI ||
+        'mongodb://localhost:27017/invoice?replicaSet=rs0&directConnection=true',
+      {
+        serverSelectionTimeoutMS: 10000,
+      },
+    ),
     EventEmitterModule.forRoot(),
     ScheduleModule.forRoot(),
 
