@@ -67,7 +67,7 @@ function createMainWindow() {
     show: false,
     frame: true,
     titleBarStyle: 'default',
-    icon: path.join(__dirname, '../client/public/favicon.svg'),
+    icon: path.join(__dirname, 'icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
@@ -99,7 +99,7 @@ function createMainWindow() {
 }
 
 function createTray() {
-  const iconPath = path.join(__dirname, '../client/public/favicon.svg');
+  const iconPath = path.join(__dirname, 'icon.png');
   tray = new Tray(iconPath);
 
   const contextMenu = Menu.buildFromTemplate([
