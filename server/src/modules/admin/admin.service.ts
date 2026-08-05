@@ -21,12 +21,21 @@ export class AdminService {
     private jwt: JwtService,
   ) {}
 
+  private getSystemCompanyFilter() {
+    return {
+      email: { $ne: 'admin@balajione.com' },
+      name: { $not: /platform administration/i },
+    };
+  }
+
   async getStats() {
+    const sysFilter = this.getSystemCompanyFilter();
     const [totalCompanies, totalUsers, totalDocuments, planBreakdown] = await Promise.all([
-      this.companyModel.countDocuments(),
-      this.userModel.countDocuments(),
+      this.companyModel.countDocuments(sysFilter),
+      this.userModel.countDocuments({ email: { $ne: 'admin@balajione.com' }, role: { $ne: Role.SUPER_ADMIN } }),
       this.docModel.countDocuments({ deletedAt: null }),
       this.companyModel.aggregate([
+        { $match: sysFilter },
         {
           $group: {
             _id: '$subscription.plan',
@@ -54,7 +63,9 @@ export class AdminService {
     const limit = Math.max(1, Math.min(100, Number(query.limit) || 20));
     const skip = (page - 1) * limit;
 
-    const filter: Record<string, unknown> = {};
+    const filter: Record<string, unknown> = {
+      ...this.getSystemCompanyFilter(),
+    };
 
     if (query.search) {
       const regex = new RegExp(query.search, 'i');
@@ -181,7 +192,10 @@ export class AdminService {
     const limit = Math.max(1, Math.min(100, Number(query.limit) || 20));
     const skip = (page - 1) * limit;
 
-    const filter: Record<string, unknown> = {};
+    const filter: Record<string, unknown> = {
+      email: { $ne: 'admin@balajione.com' },
+      role: { $ne: Role.SUPER_ADMIN },
+    };
     if (query.search) {
       const regex = new RegExp(query.search, 'i');
       filter.$or = [{ name: regex }, { email: regex }, { phone: regex }];
@@ -220,7 +234,10 @@ export class AdminService {
     const limit = Math.max(1, Math.min(100, Number(query.limit) || 20));
     const skip = (page - 1) * limit;
 
-    const filter: Record<string, unknown> = {};
+    const sysFilter = this.getSystemCompanyFilter();
+    const filter: Record<string, unknown> = {
+      ...sysFilter,
+    };
     if (query.search) {
       const regex = new RegExp(query.search, 'i');
       filter.$or = [{ name: regex }, { email: regex }, { phone: regex }];
@@ -238,8 +255,8 @@ export class AdminService {
       pro: 999,
     };
 
-    // Calculate total MRR from active company subscriptions
-    const allCompanies = await this.companyModel.find().lean();
+    // Calculate total MRR from active company subscriptions (excluding platform system owner)
+    const allCompanies = await this.companyModel.find(sysFilter).lean();
     let totalSaasRevenue = 0;
     let paidSubscriptionsCount = 0;
 

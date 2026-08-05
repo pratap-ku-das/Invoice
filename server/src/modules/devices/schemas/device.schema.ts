@@ -14,7 +14,7 @@ export class Device {
   @Prop({ type: String, enum: ['android', 'windows', 'web'], default: 'web', index: true })
   platform: string;
 
-  @Prop({ type: String, required: true, index: true })
+  @Prop({ type: String, required: true })
   fcmToken: string;
 
   @Prop({ type: String, default: '1.0.3' })

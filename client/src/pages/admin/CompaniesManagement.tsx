@@ -136,14 +136,24 @@ export default function CompaniesManagement() {
     updateMutation.mutate({ id: selectedCompany.id, plan: editPlan, status: editStatus });
   };
 
-  const planBadgeTone = (plan: string) => {
+  const planLabel = (plan?: string) => {
+    if (plan === 'free' || plan === 'starter') return 'STARTER';
+    if (plan === 'basic') return 'BASIC';
+    if (plan === 'pro') return 'PRO';
+    return (plan || 'STARTER').toUpperCase();
+  };
+
+  const planBadgeTone = (plan?: string) => {
     switch (plan) {
       case 'pro':
         return 'purple';
       case 'basic':
         return 'blue';
+      case 'starter':
+      case 'free':
+        return 'indigo';
       default:
-        return 'gray';
+        return 'indigo';
     }
   };
 
@@ -231,7 +241,7 @@ export default function CompaniesManagement() {
             </div>
           </div>
           <div className="mt-3 flex items-center gap-2 text-xs font-semibold">
-            <span className="text-slate-600 dark:text-slate-300">Free: {stats?.plansCount?.free ?? 0}</span>
+            <span className="text-slate-600 dark:text-slate-300">Starter: {(stats?.plansCount?.free ?? 0) + (stats?.plansCount?.starter ?? 0)}</span>
             <span>•</span>
             <span className="text-brand-600 dark:text-brand-400">Basic: {stats?.plansCount?.basic ?? 0}</span>
             <span>•</span>
@@ -255,7 +265,8 @@ export default function CompaniesManagement() {
         <div className="flex items-center gap-3">
           <Select value={planFilter} onChange={(e) => setPlanFilter(e.target.value)} className="w-36">
             <option value="">All Plans</option>
-            <option value="free">Free</option>
+            <option value="free">Starter</option>
+            <option value="starter">Starter</option>
             <option value="basic">Basic</option>
             <option value="pro">Pro</option>
           </Select>
@@ -295,99 +306,109 @@ export default function CompaniesManagement() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {companiesData.data.map((comp: CompanyAdminItem) => (
-                  <tr key={comp.id} className="transition hover:bg-slate-50/60 dark:hover:bg-slate-800/30">
-                    <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">
-                      <div className="font-bold text-base">{comp.name}</div>
-                      {comp.gstin && (
-                        <div className="text-xs text-slate-500 font-mono">GSTIN: {comp.gstin}</div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
-                      <div>{comp.owner?.name || comp.email || 'N/A'}</div>
-                      <div className="text-xs text-slate-400">{comp.phone || comp.owner?.email || ''}</div>
-                    </td>
-                    <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
-                      <div className="flex items-center gap-3 text-xs font-semibold">
-                        <span className="flex items-center gap-1">
-                          <Users className="h-3.5 w-3.5 text-brand-500" />
-                          {comp.usersCount} Users
-                        </span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1">
-                          <FileText className="h-3.5 w-3.5 text-purple-500" />
-                          {comp.docsCount} Docs
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="space-y-1">
-                        <Badge tone={planBadgeTone(comp.subscription?.plan || 'free')}>
-                          {(comp.subscription?.plan || 'free').toUpperCase()}
-                        </Badge>
-                        <div>
-                          <Badge tone={comp.approvalStatus === 'approved' || comp.isApproved ? 'green' : 'amber'}>
-                            {comp.approvalStatus === 'approved' || comp.isApproved ? 'APPROVED' : 'PENDING APPROVAL'}
-                          </Badge>
+                {companiesData.data
+                  .filter((comp: CompanyAdminItem) => {
+                    const isPlatformAdminComp =
+                      comp.name.toLowerCase().includes('platform administration') ||
+                      comp.owner?.email === 'admin@balajione.com' ||
+                      comp.email === 'admin@balajione.com';
+                    return !isPlatformAdminComp;
+                  })
+                  .map((comp: CompanyAdminItem) => (
+                    <tr key={comp.id} className="transition hover:bg-slate-50/60 dark:hover:bg-slate-800/30">
+                      <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">
+                        <div className="font-bold text-base flex items-center gap-2">
+                          {comp.name}
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <Badge tone={statusBadgeTone(comp.subscription?.status || 'active')}>
-                        {(comp.subscription?.status || 'active').toUpperCase()}
-                      </Badge>
-                    </td>
-                    <td className="px-6 py-4 text-xs text-slate-500">
-                      {new Date(comp.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        {comp.approvalStatus !== 'approved' && !comp.isApproved && (
-                          <Button
-                            onClick={() =>
-                              updateMutation.mutate({
-                                id: comp.id,
-                                plan: comp.subscription?.plan || 'pro',
-                                status: 'active',
-                                approvalStatus: 'approved',
-                              })
-                            }
-                            loading={updateMutation.isPending}
-                            className="h-8 px-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
-                          >
-                            ✓ Approve Company
-                          </Button>
+                        {comp.gstin && (
+                          <div className="text-xs text-slate-500 font-mono">GSTIN: {comp.gstin}</div>
                         )}
-                        <Button
-                          variant="ghost"
-                          onClick={() => impersonateMutation.mutate(comp.id)}
-                          loading={impersonateMutation.isPending}
-                          className="h-8 px-2 text-xs font-semibold text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-500/10"
-                          title="Login as Company (Impersonate)"
-                        >
-                          <LogIn className="h-3.5 w-3.5 mr-1" />
-                          Login as Company
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          onClick={() => openEditModal(comp)}
-                          className="h-8 w-8 p-0"
-                          title="Manage Plan & Status"
-                        >
-                          <Edit2 className="h-4 w-4 text-slate-600 dark:text-slate-300" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          onClick={() => setDeleteTarget(comp)}
-                          className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10"
-                          title="Delete Company"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
+                        <div>{comp.owner?.name || comp.email || 'N/A'}</div>
+                        <div className="text-xs text-slate-400">{comp.phone || comp.owner?.email || ''}</div>
+                      </td>
+                      <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
+                        <div className="flex items-center gap-3 text-xs font-semibold">
+                          <span className="flex items-center gap-1">
+                            <Users className="h-3.5 w-3.5 text-brand-500" />
+                            {comp.usersCount} Users
+                          </span>
+                          <span>•</span>
+                          <span className="flex items-center gap-1">
+                            <FileText className="h-3.5 w-3.5 text-purple-500" />
+                            {comp.docsCount} Docs
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="space-y-1">
+                          <Badge tone={planBadgeTone(comp.subscription?.plan)}>
+                            {planLabel(comp.subscription?.plan)}
+                          </Badge>
+                          <div>
+                            <Badge tone={comp.approvalStatus === 'approved' || comp.isApproved ? 'green' : 'amber'}>
+                              {comp.approvalStatus === 'approved' || comp.isApproved ? 'APPROVED' : 'PENDING APPROVAL'}
+                            </Badge>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <Badge tone={statusBadgeTone(comp.subscription?.status || 'active')}>
+                          {(comp.subscription?.status || 'active').toUpperCase()}
+                        </Badge>
+                      </td>
+                      <td className="px-6 py-4 text-xs text-slate-500">
+                        {new Date(comp.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          {comp.approvalStatus !== 'approved' && !comp.isApproved && (
+                            <Button
+                              onClick={() =>
+                                updateMutation.mutate({
+                                  id: comp.id,
+                                  plan: comp.subscription?.plan || 'pro',
+                                  status: 'active',
+                                  approvalStatus: 'approved',
+                                })
+                              }
+                              loading={updateMutation.isPending}
+                              className="h-8 px-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
+                            >
+                              ✓ Approve Company
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            onClick={() => impersonateMutation.mutate(comp.id)}
+                            loading={impersonateMutation.isPending}
+                            className="h-8 px-2 text-xs font-semibold text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-500/10"
+                            title="Login as Company (Impersonate)"
+                          >
+                            <LogIn className="h-3.5 w-3.5 mr-1" />
+                            Login as Company
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            onClick={() => openEditModal(comp)}
+                            className="h-8 w-8 p-0"
+                            title="Manage Plan & Status"
+                          >
+                            <Edit2 className="h-4 w-4 text-slate-600 dark:text-slate-300" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            onClick={() => setDeleteTarget(comp)}
+                            className="h-8 w-8 p-0 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-500/10"
+                            title="Delete Company"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>

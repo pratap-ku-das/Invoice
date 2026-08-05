@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge, Button } from '@/components/ui/primitives';
 import { Skeleton } from '@/components/ui/feedback';
 import { formatDate } from '@/lib/utils';
+import { useAuth } from '@/store/auth';
 import type { PlanInfo } from '@/types';
 
 declare global {
@@ -78,6 +79,12 @@ function UsageMeter({ label, used, limit }: { label: string; used: number; limit
 
 export default function Plan() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const { data: company } = useQuery<{ name?: string; email?: string; phone?: string }>({
+    queryKey: ['company'],
+    queryFn: async () => (await api.get('/company')).data,
+  });
+
   const [upgradingPlan, setUpgradingPlan] = useState<string | null>(null);
   const [activeRazorpayModal, setActiveRazorpayModal] = useState<{
     orderId: string;
@@ -108,30 +115,17 @@ export default function Plan() {
     }
   }, [queryClient]);
 
-  const handleRazorpayCheckout = async (planId: 'basic' | 'pro') => {
+  const handleRazorpayCheckout = async (planId: 'starter' | 'free' | 'basic' | 'pro' | string) => {
     setUpgradingPlan(planId);
     try {
-      // Step 1: Create Razorpay Order & Payment Link via Backend
+      // Step 1: Create Order on Backend
       const orderRes = await api.post('/subscription/create-order', { plan: planId });
-      const { orderId, amountPaise, key, amount, paymentLinkUrl } = orderRes.data;
+      const { order_id, orderId, amountPaise, key_id, key, amount } = orderRes.data;
 
-      const activeKey = key || 'rzp_test_demo_key';
+      const activeKey = import.meta.env.VITE_RAZORPAY_KEY_ID || key_id || key || 'rzp_live_TLzggBEFkkktep';
+      const activeOrderId = order_id || orderId;
 
-      // Option A: If backend returned official Razorpay Hosted Payment Link, redirect directly!
-      if (paymentLinkUrl) {
-        toast.loading('Redirecting to official Razorpay Hosted Payment page...');
-        window.location.href = paymentLinkUrl;
-        return;
-      }
-
-      // Option B: If using test key or simulated test order ID, open interactive Razorpay Gateway Modal for guaranteed smooth testing
-      if (activeKey.includes('demo') || activeKey === 'rzp_test_demo_key' || activeKey.startsWith('rzp_test_') || orderId.startsWith('order_test_')) {
-        setActiveRazorpayModal({ orderId, amount, plan: planId });
-        setUpgradingPlan(null);
-        return;
-      }
-
-      // Option C: Launch Official Razorpay Standard Checkout SDK Window for Production Keys
+      // Step 2: Ensure Razorpay Checkout SDK is loaded
       if (!window.Razorpay) {
         await new Promise((resolve, reject) => {
           const script = document.createElement('script');
@@ -142,25 +136,27 @@ export default function Plan() {
         });
       }
 
+      // Step 3: Configure Razorpay Standard Checkout Modal
       const options = {
         key: activeKey,
-        amount: amountPaise,
+        amount: String(amountPaise),
         currency: 'INR',
-        name: 'BalajiOne Invoice',
+        name: company?.name || user?.name || 'BalajiOne Invoice',
         description: `Upgrade to ${planId.toUpperCase()} Subscription (₹${amount}/mo)`,
-        image: '/logos/app_logo.png?v=2.0',
-        order_id: orderId.startsWith('order_test_') ? undefined : orderId,
-        handler: async (response: any) => {
+        image: 'https://invoice.balajione.dev/logos/app_logo.png?v=2.0',
+        order_id: activeOrderId,
+        handler: async (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
           try {
             await api.post('/subscription/verify-payment', {
-              razorpay_order_id: response.razorpay_order_id || orderId,
-              razorpay_payment_id: response.razorpay_payment_id || `pay_${Date.now()}`,
-              razorpay_signature: response.razorpay_signature || `simulated_sig_${Date.now()}`,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
               plan: planId,
             });
-            toast.success(`🎉 Payment Verified! Subscription upgraded to ${planId.toUpperCase()} Plan!`);
+            toast.success(`🎉 Payment Verified! Subscription upgraded & Account Activated for ${planId.toUpperCase()} Plan!`);
             queryClient.invalidateQueries({ queryKey: ['subscription'] });
             queryClient.invalidateQueries({ queryKey: ['company'] });
+            queryClient.invalidateQueries({ queryKey: ['auth'] });
           } catch (err) {
             toast.error(apiError(err));
           } finally {
@@ -170,13 +166,13 @@ export default function Plan() {
         modal: {
           ondismiss: () => {
             setUpgradingPlan(null);
-            toast('Razorpay Payment window closed', { icon: 'ℹ️' });
+            toast('Razorpay Payment window closed by user', { icon: 'ℹ️' });
           },
         },
         prefill: {
-          name: 'Business Owner',
-          email: 'billing@balajione.dev',
-          contact: '9999999999',
+          name: user?.name || company?.name || 'Business Owner',
+          email: user?.email || company?.email || '',
+          contact: user?.phone || company?.phone || '',
         },
         theme: {
           color: '#4f46e5',
@@ -184,9 +180,8 @@ export default function Plan() {
       };
 
       const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', function () {
-        // Smooth fallback to interactive modal if Razorpay CDN declines key
-        setActiveRazorpayModal({ orderId, amount, plan: planId });
+      rzp.on('payment.failed', function (response: any) {
+        toast.error(`Razorpay Payment Failed: ${response.error?.description || 'Transaction failed'}`);
         setUpgradingPlan(null);
       });
 
@@ -287,13 +282,17 @@ export default function Plan() {
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               {PLAN_CATALOG.map((p) => {
-                const current = p.id === data?.plan;
+                const isCurrentPlan =
+                  p.id === data?.plan ||
+                  (p.id === 'free' && (data?.plan === 'starter' || data?.plan === 'free')) ||
+                  (p.id === 'starter' && (data?.plan === 'free' || data?.plan === 'starter'));
+                const isPaidActive = data?.status === 'active' && isCurrentPlan;
                 const isUpgrading = upgradingPlan === p.id;
                 return (
                   <div
                     key={p.id}
                     className={`relative rounded-3xl border p-6 flex flex-col justify-between transition-all duration-300 ${
-                      current
+                      isPaidActive
                         ? 'border-brand-500 bg-white shadow-xl dark:bg-slate-900 ring-2 ring-brand-500/20'
                         : p.popular
                         ? 'border-indigo-300 bg-slate-900 text-white shadow-2xl dark:border-indigo-800'
@@ -309,7 +308,7 @@ export default function Plan() {
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <h4 className="text-lg font-bold">{p.name}</h4>
-                        {current && <Badge tone="blue">Current Plan</Badge>}
+                        {isPaidActive && <Badge tone="blue">Current Plan</Badge>}
                       </div>
                       <div>
                         <span className="text-3xl font-black">{p.price}</span>{' '}
@@ -325,17 +324,13 @@ export default function Plan() {
                     </div>
 
                     <div className="pt-6">
-                      {current ? (
+                      {isPaidActive ? (
                         <Button disabled className="w-full rounded-xl py-2.5 font-bold" variant="outline">
                           Active Plan
                         </Button>
-                      ) : p.id === 'free' ? (
-                        <Button disabled className="w-full rounded-xl py-2.5 font-bold" variant="outline">
-                          Free Trial Active
-                        </Button>
                       ) : (
                         <Button
-                          onClick={() => handleRazorpayCheckout(p.id as 'basic' | 'pro')}
+                          onClick={() => handleRazorpayCheckout(p.id)}
                           loading={isUpgrading}
                           className="w-full rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold py-3 shadow-glow"
                         >

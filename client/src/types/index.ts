@@ -4,6 +4,7 @@ export interface AuthUser {
   id: string;
   name: string;
   email: string;
+  phone?: string;
   role: Role;
   companyId: string;
 }
@@ -33,6 +34,8 @@ export interface PlanInfo {
   plan: string;
   planName: string;
   status: 'active' | 'expired' | 'cancelled';
+  isApproved?: boolean;
+  approvalStatus?: string;
   expiresAt?: string;
   limits: PlanLimits;
   usage: { invoicesThisMonth: number; users: number; companiesOwned: number };
