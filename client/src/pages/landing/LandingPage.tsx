@@ -340,6 +340,16 @@ export default function LandingPage() {
                   <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Link>
 
+                <a
+                  href="/api/releases/latest?platform=android"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 px-6 sm:px-7 py-3.5 sm:py-4 text-sm sm:text-base font-extrabold text-white shadow-xl shadow-emerald-600/30 transition transform hover:-translate-y-1 text-center"
+                >
+                  <Zap className="h-5 w-5 text-amber-300 animate-bounce" />
+                  Download Mobile App (APK)
+                </a>
+
                 <Link
                   to="/login"
                   className={`flex items-center justify-center gap-2 rounded-2xl border px-6 sm:px-7 py-3.5 sm:py-4 text-sm sm:text-base font-semibold transition text-center ${
@@ -426,6 +436,37 @@ export default function LandingPage() {
                 </div>
               </div>
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Mobile App Download Showcase Banner */}
+      <section className="py-12 bg-gradient-to-r from-brand-600 via-indigo-700 to-purple-800 text-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+            <div className="space-y-3 text-center lg:text-left max-w-2xl">
+              <span className="inline-block rounded-full bg-white/20 px-3 py-1 text-xs font-bold text-amber-300">
+                📲 BalajiOne Mobile App for Android
+              </span>
+              <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
+                Manage Invoices & Stock On The Go
+              </h2>
+              <p className="text-sm sm:text-base text-brand-100">
+                True native Material Design 3 mobile app. Create GST invoices, view stock levels, track money in/out, and share PDF bills to WhatsApp instantly.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-4 shrink-0">
+              <a
+                href="/api/releases/latest?platform=android"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-center gap-2.5 rounded-2xl bg-white px-7 py-4 text-base font-black text-brand-700 shadow-2xl transition transform hover:-translate-y-1 hover:bg-slate-50 text-center"
+              >
+                <Zap className="h-6 w-6 text-brand-600 animate-bounce" />
+                Download Android APK (v1.0.4)
+              </a>
+            </div>
           </div>
         </div>
       </section>
