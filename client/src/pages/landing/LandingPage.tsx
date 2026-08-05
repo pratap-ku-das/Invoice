@@ -158,6 +158,26 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const [isDark, setIsDark] = useState(false);
 
+  const handleDownloadAPK = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const backendBase = import.meta.env.VITE_API_URL || 'https://invoice-server.onrender.com/api';
+    try {
+      const res = await fetch(`${backendBase}/releases/latest?platform=android`);
+      const data = await res.json();
+      if (data?.downloadUrl) {
+        const fullUrl = data.downloadUrl.startsWith('http')
+          ? data.downloadUrl
+          : `${backendBase.replace(/\/api$/, '')}${data.downloadUrl}`;
+        window.open(fullUrl, '_blank');
+        return;
+      }
+    } catch {
+      // Fallback
+    }
+    // Reliable static fallback link to downloadable release artifact
+    window.open('https://github.com/pratap-ku-das/Invoice/releases/download/v1.0.4/BalajiOne-Invoice.apk', '_blank');
+  };
+
   return (
     <div
       className={`min-h-screen font-sans transition-colors duration-300 ${
@@ -223,9 +243,8 @@ export default function LandingPage() {
               Pricing
             </a>
             <a
-              href="/api/releases/latest?platform=android"
-              target="_blank"
-              rel="noreferrer"
+              href="#"
+              onClick={handleDownloadAPK}
               className="flex items-center gap-1.5 text-sm font-bold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
             >
               <Zap className="h-4 w-4" /> Download Android App (APK)
@@ -341,9 +360,8 @@ export default function LandingPage() {
                 </Link>
 
                 <a
-                  href="/api/releases/latest?platform=android"
-                  target="_blank"
-                  rel="noreferrer"
+                  href="#"
+                  onClick={handleDownloadAPK}
                   className="flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 px-6 sm:px-7 py-3.5 sm:py-4 text-sm sm:text-base font-extrabold text-white shadow-xl shadow-emerald-600/30 transition transform hover:-translate-y-1 text-center"
                 >
                   <Zap className="h-5 w-5 text-amber-300 animate-bounce" />
@@ -458,9 +476,8 @@ export default function LandingPage() {
 
             <div className="flex flex-col sm:flex-row items-center gap-4 shrink-0">
               <a
-                href="/api/releases/latest?platform=android"
-                target="_blank"
-                rel="noreferrer"
+                href="#"
+                onClick={handleDownloadAPK}
                 className="flex items-center justify-center gap-2.5 rounded-2xl bg-white px-7 py-4 text-base font-black text-brand-700 shadow-2xl transition transform hover:-translate-y-1 hover:bg-slate-50 text-center"
               >
                 <Zap className="h-6 w-6 text-brand-600 animate-bounce" />
