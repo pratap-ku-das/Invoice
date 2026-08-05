@@ -26,6 +26,12 @@ if (!existsSync(uploadDir)) {
 export class ReleasesController {
   constructor(private readonly releasesService: ReleasesService) {}
 
+  @Get('releases/check')
+  @ApiOperation({ summary: 'Check OTA updates for Android Capacitor clients' })
+  async checkOTA(@Query('platform') platform?: string) {
+    return this.releasesService.getAppVersionResponse(platform || 'android');
+  }
+
   @Get('app/version')
   @ApiOperation({ summary: 'Master endpoint for mobile/desktop app version check' })
   async getAppVersion(@Query('platform') platform?: string) {

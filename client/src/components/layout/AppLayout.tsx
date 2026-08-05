@@ -10,6 +10,7 @@ import { MobileBottomNavM3 } from '@/mobile/navigation/MobileBottomNavM3';
 import { MobileNavDrawer } from '@/mobile/navigation/MobileNavDrawer';
 import { PWAInstallBanner } from '@/components/pwa/PWAInstallBanner';
 import { AppUpdateModal } from '@/components/update/AppUpdateModal';
+import { OTAUpdateModal } from '@/components/update/OTAUpdateModal';
 import { useAuth } from '@/store/auth';
 import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/feedback';
@@ -171,6 +172,7 @@ export function AppLayout() {
 
       <PWAInstallBanner />
       <AppUpdateModal />
+      <OTAUpdateModal />
     </div>
   );
 }

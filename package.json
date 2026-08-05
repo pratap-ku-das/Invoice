@@ -19,6 +19,7 @@
     "electron:build": "npm run build -w client && electron-builder --config electron-builder.json",
     "android:sync": "npm run build -w client && cd client && npx cap sync android",
     "android:build": "npm run android:sync && cd client/android && ./gradlew assembleDebug",
+    "ota:publish": "npm run build -w client && cd client/dist && tar -czf ../../dist.zip . && echo 'OTA Bundle dist.zip generated successfully.'",
     "test": "npm run test -w server && npm run test -w client",
     "lint": "npm run lint -w server && npm run lint -w client"
   },
