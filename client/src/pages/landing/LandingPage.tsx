@@ -158,24 +158,9 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const [isDark, setIsDark] = useState(false);
 
-  const handleDownloadAPK = async (e: React.MouseEvent) => {
+  const handleDownloadAPK = (e: React.MouseEvent) => {
     e.preventDefault();
-    const backendBase = import.meta.env.VITE_API_URL || 'https://invoice-server.onrender.com/api';
-    try {
-      const res = await fetch(`${backendBase}/releases/latest?platform=android`);
-      const data = await res.json();
-      if (data?.downloadUrl) {
-        const fullUrl = data.downloadUrl.startsWith('http')
-          ? data.downloadUrl
-          : `${backendBase.replace(/\/api$/, '')}${data.downloadUrl}`;
-        window.open(fullUrl, '_blank');
-        return;
-      }
-    } catch {
-      // Fallback
-    }
-    // Reliable static fallback link to downloadable release artifact
-    window.open('https://github.com/pratap-ku-das/Invoice/releases/download/v1.0.4/BalajiOne-Invoice.apk', '_blank');
+    navigate('/download');
   };
 
   return (

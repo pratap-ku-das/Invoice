@@ -37,6 +37,7 @@ const OnboardingWizard = lazyRetry(() => import('@/pages/onboarding/OnboardingWi
 
 const Login = lazyRetry(() => import('@/pages/auth/Login'));
 const Register = lazyRetry(() => import('@/pages/auth/Register'));
+const DownloadPage = lazyRetry(() => import('@/pages/download/DownloadPage'));
 
 const Dashboard = lazyRetry(() => import('@/pages/dashboard/Dashboard'));
 
@@ -166,6 +167,14 @@ export const router = createBrowserRouter([
     element: (
       <SuspenseWrapper>
         <LandingPage />
+      </SuspenseWrapper>
+    ),
+  },
+  {
+    path: '/download',
+    element: (
+      <SuspenseWrapper>
+        <DownloadPage />
       </SuspenseWrapper>
     ),
   },
